@@ -21,7 +21,7 @@ plugins = dict(root="plugins")
 app = Client("m3u8_downloader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN,plugins=plugins)
 
 
-@app.on_message(filters.command("ca"))
+#@app.on_message(filters.command("ca"))
 async def ca_(client,message:Message):
     text=f"AuthU : {AuthU}\n\nis : {is_authorized(message.chat.id)}"
     await message.reply(text)
@@ -35,7 +35,7 @@ async def dl_m3u8(client,message:Message):
     global AuthU
     try:
         args = message.text.split(" ", 1)
-        if str(message.chat.id) not in AuthU:
+        if not is_authorized(message.chat.id):
             await message.reply("**❌️You are not my auther for use me!...❌️**")
             return
         if len(args) < 2:

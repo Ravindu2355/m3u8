@@ -111,14 +111,14 @@ async def handle_button_click(client, query: CallbackQuery):
                 duration = await download_and_convert_video(msg, downloaded_file_path, output_file)
 
                 if not os.path.exists(output_file):
-                    await msg.edit_text("❌ Failed to download or convert the video.")
+                    await q_msg.edit_text("❌ Failed to download or convert the video.")
                     return
 
                 # Generate thumbnail
-                await msg.edit_text("🖼 **Generating thumbnail...**")
+                await q_msg.edit_text("🖼 **Generating new thumbnail...**")
                 generate_thumbnail(output_file, thumb_file)
         
-                await msg.edit_text("📤 **Uploading video with thumbnail...**")
+                await q_msg.edit_text("📤 **Uploading video with thumbnail...**")
                 upload_start_time = time.time()
 
                 with open(output_file, "rb") as video, open(thumb_file, "rb") as thumb:
@@ -130,11 +130,11 @@ async def handle_button_click(client, query: CallbackQuery):
                           caption="✅ **Here is yor video!** ✅️",
                           supports_streaming=True,  # Enables streaming
                           progress=progress_callback,
-                          progress_args=(msg, upload_start_time)
+                          progress_args=(q_msg, upload_start_time)
                          )
 
                          #await message.reply("✅ **Upload complete!**")
-                await msg.delete();
+                await q_msg.delete();
                 os.remove(output_file)
                 os.remove(thumb_file)
                 os.remove(downloaded_file_path)

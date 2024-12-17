@@ -42,7 +42,7 @@ async def progress_callback(current, total, message: Message, start_time, last_u
             print(f"Error updating progress: {e}")
 
 # Command handler: Listen for forwarded video or video documents
-@app.on_message(filters.video | filters.document)
+@Client.on_message(filters.video | filters.document)
 async def handle_forwarded_file(client, message: Message):
     # Check if it's a document and ensure it is a video file
     if message.document and "video" not in message.document.mime_type:
@@ -62,7 +62,7 @@ async def handle_forwarded_file(client, message: Message):
     #DOWNLOAD_TASKS[str(message.id)] = message
 
 # Callback query handler for button actions
-@app.on_callback_query()
+@Client.on_callback_query()
 async def handle_button_click(client, query: CallbackQuery):
     user_action = query.data
     q_msg = query.message

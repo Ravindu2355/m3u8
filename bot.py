@@ -44,7 +44,7 @@ async def dl_m3u8(client,message:Message):
         output_file = "output.mp4"
         thumb_file = "thumb.jpg"
 
-        await download_and_convert_video(msg, m3u8_url, output_file)
+        duration = await download_and_convert_video(msg, m3u8_url, output_file)
 
 
 
@@ -64,6 +64,7 @@ async def dl_m3u8(client,message:Message):
             await client.send_video(
                 chat_id=message.chat.id,
                 video=video,
+                duration=duration,
                 thumb=thumb,  # Attach the generated thumbnail
                 caption="✅ **Here is yor video!** ✅️",
                 supports_streaming=True,  # Enables streaming

@@ -5,6 +5,8 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import Config
 from globals import AuthU
+from Func.simples import mention_user, progress_callback, generate_thumbnail
+
 
 # Environment variables
 API_ID = Config.API_ID
@@ -16,37 +18,8 @@ OWNER = Config.OWNER
 plugins = dict(root="plugins")
 app = Client("m3u8_downloader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN,plugins=plugins)
 
-# Progress callback for uploads
-def progress_callback(current, total, message: Message, start_time):
-    elapsed_time = time.time() - start_time
-    progress = (current / total) * 100
-    speed = current / elapsed_time / 1024
-    eta = (total - current) / (speed * 1024) if speed > 0 else 0
 
-    progress_msg = (
-        f"**Progress**: {progress:.2f}%\n"
-        f"**Speed**: {speed:.2f} KB/s\n"
-        f"**Elapsed Time**: {int(elapsed_time)}s\n"
-        f"**ETA**: {int(eta)}s"
-    )
-    try:
-        message.edit_text(progress_msg)
-    except:
-        pass
 
-# Generate thumbnail using ffmpeg
-def generate_thumbnail(video_path, thumb_path, time_stamp="00:00:05"):
-    command = [
-        "ffmpeg", "-i", video_path, "-ss", time_stamp, "-vframes", "1", thumb_path
-    ]
-    subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-def mention_user(message:Message):
-    user = message.from_user
-    user_name = user.first_name
-    user_id = user.id
-    mention = f"[{user_name}](tg://user?id={user_id})"
-    return mention
 
 @app.on_message(filters.command("start"))
 async def st_rep(client,message:Message):

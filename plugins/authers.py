@@ -1,10 +1,10 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import Config
-
+from globals import AuthU
 # Global variable to store authorized user IDs as a comma-separated string
-AuthU = Config.AUTH
-OWNER =Config.OWNER
+
+OWNER = Config.OWNER
 # Helper function to check if user is authorized
 def is_authorized(user_id: int) -> bool:
     return str(user_id) in AuthU.split(",")

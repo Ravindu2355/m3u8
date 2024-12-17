@@ -40,7 +40,8 @@ async def download_video_with_logo(message: Message, m3u8_url, output_file):
         "-i", m3u8_url,                          # Input M3U8 URL
         "-i", logo_path,                         # Input logo
         "-filter_complex", "overlay=W-w-10:H-h-10",      # Add logo at top-left (10px from edges)
-        "-c:v", "libx264",                       # Use H.264 codec for video compression
+        "-c:v", "libx264",   # Use H.264 codec for video compression
+        "-preset", "ultrafast",
         "-c:a", "aac",                           # Use AAC codec for audio
         "-strict", "experimental",               # Ensure compatibility
         output_file

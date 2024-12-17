@@ -27,6 +27,7 @@ async def st_rep(client,message:Message):
 
 @app.on_message(filters.command("m3u8"))
 async def dl_m3u8(client,message:Message):
+    global AuthU
     try:
         args = message.text.split(" ", 1)
         if str(message.chat.id) not in AuthU:

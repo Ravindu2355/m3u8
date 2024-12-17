@@ -108,7 +108,7 @@ async def handle_button_click(client, query: CallbackQuery):
                 output_file = f"output.{converting_type}"
                 thumb_file = "thumb.jpg"
 
-                duration = await download_and_convert_video(msg, downloaded_file_path, output_file)
+                duration = await download_and_convert_video(q_msg, downloaded_file_path, output_file)
 
                 if not os.path.exists(output_file):
                     await q_msg.edit_text("❌ Failed to download or convert the video.")

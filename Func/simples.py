@@ -62,7 +62,7 @@ async def progress_callback(current, total, message: Message, start_time):
         f"**Uploaded**: {current_human} / {total_human}\n"
         f"**Speed**: {speed_human}/s\n"
         f"**Elapsed Time**: {int(elapsed_time)}s\n"
-        f"**ETA**: {eta_human}"
+        f"**ETA**: {eta}s"
     )
 
     # Check if 10 seconds have passed since the last update

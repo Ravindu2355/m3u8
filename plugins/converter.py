@@ -58,7 +58,7 @@ async def handle_forwarded_file(client, message: Message):
              
         ]
     )
-    await client.send_message(chat_id=message.id,text="🎥 **What would you like to do with this file?**", reply_to_message_id=message.id, reply_markup=buttons)
+    await client.send_message(chat_id=message.chat.id,text="🎥 **What would you like to do with this file?**", reply_to_message_id=message.id, reply_markup=buttons)
     #DOWNLOAD_TASKS[str(message.id)] = message
 
 # Callback query handler for button actions
@@ -123,7 +123,7 @@ async def handle_button_click(client, query: CallbackQuery):
 
                 with open(output_file, "rb") as video, open(thumb_file, "rb") as thumb:
                     await client.send_video(
-                          chat_id=message.chat.id,
+                          chat_id=original_msg.chat.id,
                           video=video,
                           duration=int(duration),
                           thumb=thumb,  # Attach the generated thumbnail

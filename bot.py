@@ -6,7 +6,7 @@ from pyrogram.types import Message
 from config import Config
 from globals import AuthU
 from Func.simples import mention_user, progress_callback, generate_thumbnail
-
+from Func.m3u8 import download_and_convert_video
 
 # Environment variables
 API_ID = Config.API_ID

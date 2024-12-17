@@ -64,7 +64,7 @@ async def dl_m3u8(client,message:Message):
             await client.send_video(
                 chat_id=message.chat.id,
                 video=video,
-                duration=duration,
+                duration=int(duration),
                 thumb=thumb,  # Attach the generated thumbnail
                 caption="✅ **Here is yor video!** ✅️",
                 supports_streaming=True,  # Enables streaming

@@ -22,7 +22,7 @@ async def add_auth(client, message: Message):
 
     # Ensure the command has an ID argument
     if len(args) < 2:
-        await message.reply("⚠️ Usage: /addauth `user_id`")
+        await message.reply("⚠️ Usage: `/addauth userid`")
         return
 
     new_id = args[1].strip()
@@ -50,7 +50,7 @@ async def remove_auth(client, message: Message):
 
     # Ensure the command has an ID argument
     if len(args) < 2:
-        await message.reply("⚠️ Usage: /removeauth `user_id`")
+        await message.reply("⚠️ Usage: `/removeauth userid`")
         return
 
     remove_id = args[1].strip()
@@ -76,7 +76,7 @@ async def list_auth(client, message: Message):
 
     global AuthU
     auth_list = AuthU.split(",")
-    auth_text = "\n".join([f"🔹 `{user_id}`" for user_id in auth_list])
+    auth_text = "\n".join([f"🔹 `{user_id}` - [User](tg://user?id={user_id})" for user_id in auth_list])
     await message.reply(f"**🔐 Authorized User IDs:**\n\n{auth_text}")
 
 

@@ -8,6 +8,7 @@ from pyrogram.types import Message
 API_ID = int(os.getenv("apiid"))
 API_HASH = os.getenv("apihash")
 BOT_TOKEN = os.getenv("tk")
+AuthU = os.getenv("auth")
 
 # Initialize Pyrogram client
 app = Client("m3u8_downloader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -42,12 +43,15 @@ def generate_thumbnail(video_path, thumb_path, time_stamp="00:00:05"):
 async def download_m3u8(client, message: Message):
     try:
         args = message.text.split(" ", 1)
-        if len(args) < 2:
+        if str(message.chat.id) not in AuthU:
+            await message.reply("**❌️You are not my auther for use me!...❌️**")
+            return
+        if len(args) < 2 and "tera" not in args[1].strip():
             await message.reply("Please provide an m3u8 URL. Example: `/download <m3u8_url>`")
             return
 
         m3u8_url = args[1].strip()
-        await message.reply("✅ **Starting download and conversion...**")
+        msg = await message.reply("✅ **Starting download and conversion...**")
         start_time = time.time()
 
         # File paths
@@ -55,7 +59,7 @@ async def download_m3u8(client, message: Message):
         thumb_file = "thumb.jpg"
 
         # FFmpeg command to download and convert
-        await message.reply("📥 **Downloading and converting the video...**")
+        await msg.edit_text("📥 **Downloading and converting the video...**")
         ffmpeg_command = [
             "ffmpeg", "-i", m3u8_url, "-c", "copy", "-bsf:a", "aac_adtstoasc", output_file
         ]
@@ -65,19 +69,19 @@ async def download_m3u8(client, message: Message):
         # Progress updates every 10 seconds
         while process.poll() is None:
             if time.time() - last_update > 10:
-                await message.reply("⏳ **FFmpeg is processing...** Please wait.")
+                await msg.edit_text("⏳ **FFmpeg is processing...** Please wait.")
                 last_update = time.time()
 
         if not os.path.exists(output_file):
-            await message.reply("❌ Failed to download or convert the video.")
+            await msg.edit_text("❌ Failed to download or convert the video.")
             return
 
         # Generate thumbnail
-        await message.reply("🖼 **Generating thumbnail...**")
+        await msg.edit_text("🖼 **Generating thumbnail...**")
         generate_thumbnail(output_file, thumb_file)
 
         # Upload to Telegram
-        await message.reply("📤 **Uploading video with thumbnail...**")
+        await msg.edit_text("📤 **Uploading video with thumbnail...**")
         upload_start_time = time.time()
 
         with open(output_file, "rb") as video, open(thumb_file, "rb") as thumb:
@@ -85,13 +89,14 @@ async def download_m3u8(client, message: Message):
                 chat_id=message.chat.id,
                 video=video,
                 thumb=thumb,  # Attach the generated thumbnail
-                caption="✅ **Here is your streamable video!**",
+                caption="✅ **Here is yor video!** ✅️",
                 supports_streaming=True,  # Enables streaming
                 progress=progress_callback,
                 progress_args=(message, upload_start_time)
             )
 
-        await message.reply("✅ **Upload complete!**")
+        #await message.reply("✅ **Upload complete!**")
+        await msg.delete();
         os.remove(output_file)
         os.remove(thumb_file)
 

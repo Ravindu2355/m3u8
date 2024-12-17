@@ -3,15 +3,19 @@ import time
 import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from config import Config
+
 
 # Environment variables
-API_ID = int(os.getenv("apiid"))
-API_HASH = os.getenv("apihash")
-BOT_TOKEN = os.getenv("tk")
-AuthU = os.getenv("auth")
+API_ID = Config.API_ID
+API_HASH = Config.API_HASH
+BOT_TOKEN = Config.BOT_TOKEN
+AuthU = Config.AUTH
+OWNER = Config.OWNER
 
 # Initialize Pyrogram client
-app = Client("m3u8_downloader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+plugins = dict(root="plugins")
+app = Client("m3u8_downloader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN,plugins=plugins)
 
 # Progress callback for uploads
 def progress_callback(current, total, message: Message, start_time):

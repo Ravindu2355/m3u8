@@ -15,7 +15,7 @@ def mention_user(message:Message):
 
 last_msg=""
 # Progress callback for uploads
-def progress_callback(current, total, message: Message, start_time):
+async def progress_callback(current, total, message: Message, start_time):
     global last_msg
     elapsed_time = time.time() - start_time
     progress = (current / total) * 100

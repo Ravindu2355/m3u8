@@ -87,7 +87,7 @@ async def handle_button_click(client, query: CallbackQuery):
             download_path = "./downloads"
             if not os.path.exists(download_path):
                 os.makedirs(download_path)
-            file_name = os.path.join(download_path, get_tg_filename(original_msg))
+            file_name = os.path.join(download_path, await get_tg_filename(original_msg))
             # Initialize progress tracking
             last_update = {"time": 0, "msg": ""}
 

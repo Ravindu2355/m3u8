@@ -119,7 +119,7 @@ async def handle_button_click(client, query: CallbackQuery):
 
                 # Generate thumbnail
                 await q_msg.edit_text("🖼 **Generating new thumbnail...**")
-                await generate_thumbnail(output_file, thumb_file)
+                generate_thumbnail(output_file, thumb_file)
 
                 if not os.path.exists(thumb_file):
                     await q_msg.edit_text("❌ Failed to gebarate thumb")

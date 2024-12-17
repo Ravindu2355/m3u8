@@ -13,8 +13,10 @@ def mention_user(message:Message):
     mention = f"[{user_name}](tg://user?id={user_id})"
     return mention
 
+last_msg=""
 # Progress callback for uploads
 def progress_callback(current, total, message: Message, start_time):
+    global last_msg
     elapsed_time = time.time() - start_time
     progress = (current / total) * 100
     speed = current / elapsed_time / 1024
@@ -27,7 +29,9 @@ def progress_callback(current, total, message: Message, start_time):
         f"**ETA**: {int(eta)}s"
     )
     try:
-        message.edit_text(progress_msg)
+        if last_msg != progress_msg:
+            last_msg = progress_msg
+            await message.edit_text(progress_msg)
     except:
         pass
 

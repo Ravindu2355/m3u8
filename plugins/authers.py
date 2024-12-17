@@ -22,7 +22,7 @@ async def add_auth(client, message: Message):
 
     # Ensure the command has an ID argument
     if len(args) < 2:
-        await message.reply("⚠️ Usage: `/addauth <user_id>`")
+        await message.reply("⚠️ Usage: /addauth `user_id`")
         return
 
     new_id = args[1].strip()
@@ -50,7 +50,7 @@ async def remove_auth(client, message: Message):
 
     # Ensure the command has an ID argument
     if len(args) < 2:
-        await message.reply("⚠️ Usage: `/removeauth <user_id>`")
+        await message.reply("⚠️ Usage: /removeauth `user_id`")
         return
 
     remove_id = args[1].strip()

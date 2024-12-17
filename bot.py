@@ -4,13 +4,12 @@ import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import Config
-
+from globals import AuthU
 
 # Environment variables
 API_ID = Config.API_ID
 API_HASH = Config.API_HASH
 BOT_TOKEN = Config.BOT_TOKEN
-AuthU = Config.AUTH
 OWNER = Config.OWNER
 
 # Initialize Pyrogram client

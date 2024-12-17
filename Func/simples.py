@@ -13,7 +13,16 @@ def mention_user(message:Message):
     mention = f"[{user_name}](tg://user?id={user_id})"
     return mention
 
+async def get_tg_filename(message:Message):
+    if message.video:
+        file_name = message.video.file_name
+    elif message.document:
+        file_name = message.document.file_name
 
+    if not file_name:
+        file_name = f"video_{time.time()}.mp4"
+    # Reply with the file name
+    return file_name
 
 # Generate thumbnail using ffmpeg
 def generate_thumbnail(video_path, thumb_path, time_stamp="00:00:05"):

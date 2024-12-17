@@ -2,7 +2,7 @@ import os
 import time
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from Func.simples import mention_user, progress_callback, generate_thumbnail, get_tg_filename
+from Func.simples import mention_user, generate_thumbnail, get_tg_filename
 from Func.m3u8 import download_and_convert_video
 # A global dictionary to store messages for handling callbacks
 DOWNLOAD_TASKS = {}
@@ -130,7 +130,7 @@ async def handle_button_click(client, query: CallbackQuery):
                           caption="✅ **Here is yor video!** ✅️",
                           supports_streaming=True,  # Enables streaming
                           progress=progress_callback,
-                          progress_args=(q_msg, upload_start_time)
+                          progress_args=(q_msg, upload_start_time,last_update)
                          )
 
                          #await message.reply("✅ **Upload complete!**")

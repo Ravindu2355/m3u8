@@ -58,7 +58,7 @@ async def handle_forwarded_file(client, message: Message):
              
         ]
     )
-    await client.send_message("🎥 **What would you like to do with this file?**", reply_to_message_id=message.id, reply_markup=buttons)
+    await client.send_message(chat_id=message.id,text="🎥 **What would you like to do with this file?**", reply_to_message_id=message.id, reply_markup=buttons)
     #DOWNLOAD_TASKS[str(message.id)] = message
 
 # Callback query handler for button actions

@@ -28,7 +28,7 @@ async def download_and_convert_video(message: Message, m3u8_url, output_file):
         await message.edit_text("❌ Failed to retrieve video duration.")
         return
 
-    await message.edit_text("📥 **Starting download and conversion...**")
+    #await message.edit_text("📥 **Starting download and conversion...**")
     
     # FFmpeg command
     ffmpeg_command = [

@@ -60,6 +60,11 @@ async def handle_forwarded_file(client, message: Message):
     )
     await client.send_message(chat_id=message.chat.id,text="🎥 **What would you like to do with this file?**", reply_to_message_id=message.id, reply_markup=buttons)
     #DOWNLOAD_TASKS[str(message.id)] = message
+    
+def safe_progress_callback(callback, *args):
+    def wrapper(current, total):
+        asyncio.create_task(callback(current, total, *args))
+    return wrapper
 
 # Callback query handler for button actions
 @Client.on_callback_query()
@@ -96,9 +101,7 @@ async def handle_button_click(client, query: CallbackQuery):
                 start_time = time.time()
                 downloaded_file_path = await original_msg.download(
                     file_name=file_name,
-                    progress=lambda current, total: progress_callback(
-                        current, total, q_msg, start_time, last_update
-                    )
+                    progress=safe_progress_callback(progress_callback, q_msg, upload_start_time, last_update)
                 )
 
                 # Notify the user after download
@@ -116,8 +119,11 @@ async def handle_button_click(client, query: CallbackQuery):
 
                 # Generate thumbnail
                 await q_msg.edit_text("🖼 **Generating new thumbnail...**")
-                generate_thumbnail(output_file, thumb_file)
-        
+                await generate_thumbnail(output_file, thumb_file)
+
+                if not os.path.exists(thumb_file):
+                    await q_msg.edit_text("❌ Failed to gebarate thumb")
+                    return
                 await q_msg.edit_text("📤 **Uploading video with thumbnail...**")
                 upload_start_time = time.time()
 

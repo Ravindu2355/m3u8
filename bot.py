@@ -23,7 +23,7 @@ app = Client("m3u8_downloader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=
 
 @app.on_message(filters.command("start"))
 async def st_rep(client,message:Message):
-    message.reply(f"**🔰RVX M3U8 Downloader🔰\n\n❤️Welcome {mention_user(message)}💪!\n🔰I am an simple M3U8 link uploader bot.🔰Give me a m3u8 link with `/m3u8 <m3u8 direct link>` and \n😇I will upload it to telegram as `video - mp4`🫡😎**")
+    await message.reply(f"**🔰RVX M3U8 Downloader🔰\n\n❤️Welcome {mention_user(message)}💪!\n🔰I am an simple M3U8 link uploader bot.🔰Give me a m3u8 link with `/m3u8 <m3u8 direct link>` and \n😇I will upload it to telegram as `video - mp4`🫡😎**")
 
 # Command to download and process video
 @app.on_message(filters.command("m3u8"))

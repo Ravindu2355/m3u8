@@ -46,7 +46,7 @@ async def download_m3u8(client, message: Message):
         if str(message.chat.id) not in AuthU:
             await message.reply("**❌️You are not my auther for use me!...❌️**")
             return
-        if len(args) < 2 and "tera" not in args[1].strip():
+        if len(args) < 2:
             await message.reply("Please provide an m3u8 URL. Example: `/download <m3u8_url>`")
             return
 

@@ -79,4 +79,14 @@ async def list_auth(client, message: Message):
     auth_text = "\n".join([f"🔹 `{user_id}` - [User](tg://user?id={user_id})" for user_id in auth_list])
     await message.reply(f"**🔐 Authorized User IDs:**\n\n{auth_text}")
 
+@Client.on_message(filters.command("checkauth"))
+async def check_auth(client, message: Message):
+    if str(message.from_user.id) not in OWNER:
+      await message.reply("❌ You are not authorized to view the list!")
+      return
+
+    global AuthU
+    await message.reply(f"**🔐 Authorized User IDs:**\n\n{AuthU}")
+
+
 

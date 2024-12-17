@@ -79,7 +79,7 @@ async def download_m3u8(client, message: Message):
                 caption="✅ **Here is yor video!** ✅️",
                 supports_streaming=True,  # Enables streaming
                 progress=progress_callback,
-                progress_args=(message, upload_start_time)
+                progress_args=(msg, upload_start_time)
             )
 
         #await message.reply("✅ **Upload complete!**")

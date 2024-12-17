@@ -76,7 +76,11 @@ async def list_auth(client, message: Message):
 
     global AuthU
     auth_list = AuthU.split(",")
-    auth_text = "\n".join([f"🔹 `{user_id}` - [User](tg://user?id={user_id})" for user_id in auth_list])
+    valid_auth_list = [user_id for user_id in auth_list if str(user_id) not in ["0", "0000000000"]]
+    auth_text = "\n".join([f"🔹 `{user_id}` - [User](tg://user?id={user_id})" for user_id in valid_auth_list])
+    if not valid_auth_list:
+        auth_text = "No valid users found."
+    #auth_text = "\n".join([f"🔹 `{user_id}` - [User](tg://user?id={user_id})" for user_id in auth_list])
     await message.reply(f"**🔐 Authorized User IDs:**\n\n{auth_text}")
 
 @Client.on_message(filters.command("checkauth"))

@@ -13,27 +13,7 @@ def mention_user(message:Message):
     mention = f"[{user_name}](tg://user?id={user_id})"
     return mention
 
-last_msg=""
-# Progress callback for uploads
-async def progress_callback(current, total, message: Message, start_time):
-    global last_msg
-    elapsed_time = time.time() - start_time
-    progress = (current / total) * 100
-    speed = current / elapsed_time / 1024
-    eta = (total - current) / (speed * 1024) if speed > 0 else 0
 
-    progress_msg = (
-        f"**Progress**: {progress:.2f}%\n"
-        f"**Speed**: {speed:.2f} KB/s\n"
-        f"**Elapsed Time**: {int(elapsed_time)}s\n"
-        f"**ETA**: {int(eta)}s"
-    )
-    try:
-        if last_msg != progress_msg:
-            last_msg = progress_msg
-            await message.edit_text(progress_msg)
-    except:
-        pass
 
 # Generate thumbnail using ffmpeg
 def generate_thumbnail(video_path, thumb_path, time_stamp="00:00:05"):
@@ -41,3 +21,60 @@ def generate_thumbnail(video_path, thumb_path, time_stamp="00:00:05"):
         "ffmpeg", "-i", video_path, "-ss", time_stamp, "-vframes", "1", thumb_path
     ]
     subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
+
+# Global variables to store the last progress message and update time
+last_msg = ""
+last_update_time = 0  # To track the last update time
+
+# Function to convert bytes into human-readable format (KB, MB, GB)
+def human_readable_size(size_in_bytes):
+    if size_in_bytes < 1024:
+        return f"{size_in_bytes:.2f} Bytes"
+    elif size_in_bytes < 1024 ** 2:
+        return f"{size_in_bytes / 1024:.2f} KB"
+    elif size_in_bytes < 1024 ** 3:
+        return f"{size_in_bytes / (1024 ** 2):.2f} MB"
+    elif size_in_bytes < 1024 ** 4:
+        return f"{size_in_bytes / (1024 ** 3):.2f} GB"
+    else:
+        return f"{size_in_bytes / (1024 ** 4):.2f} TB"
+
+# Progress callback for uploads
+async def progress_callback(current, total, message: Message, start_time):
+    global last_msg, last_update_time
+
+    elapsed_time = time.time() - start_time  # Time elapsed since upload started
+    progress = (current / total) * 100  # Calculate progress percentage
+    speed = current / elapsed_time / 1024  # Calculate speed in KB/s
+    eta = (total - current) / (speed * 1024) if speed > 0 else 0  # Estimated Time of Arrival (ETA)
+
+    # Convert current, total, and speed to human-readable formats
+    current_human = human_readable_size(current)
+    total_human = human_readable_size(total)
+    speed_human = human_readable_size(current / elapsed_time)  # Speed in KB/s converted to human format
+    eta_human = human_readable_size(eta * 1024)  # ETA in bytes converted to human format
+
+    # Build the progress message
+    progress_msg = (
+        f"**Progress**: {progress:.2f}%\n"
+        f"**Uploaded**: {current_human} / {total_human}\n"
+        f"**Speed**: {speed_human}/s\n"
+        f"**Elapsed Time**: {int(elapsed_time)}s\n"
+        f"**ETA**: {eta_human}"
+    )
+
+    # Check if 10 seconds have passed since the last update
+    if time.time() - last_update_time >= 10:  # Update every 10 seconds
+        if last_msg != progress_msg:  # Only update if message content has changed
+            try:
+                await message.edit_text(progress_msg)  # Send the updated progress message
+                last_msg = progress_msg  # Store the new message as the last message
+                last_update_time = time.time()  # Update the last update time
+            except Exception as e:
+                print(f"Error updating message: {e}")
+                pass
+
+
+

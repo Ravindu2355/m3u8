@@ -7,6 +7,6 @@ class Config(object):
   
   BOT_TOKEN = os.getenv("tk")
   
-  AuthU = os.getenv("auth")
+  AUTH = os.getenv("auth")
   
   OWNER =os.getenv("owner")

@@ -38,8 +38,19 @@ def generate_thumbnail(video_path, thumb_path, time_stamp="00:00:05"):
     ]
     subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+def mention_user(message:Message):
+    user = message.from_user
+    user_name = user.first_name
+    user_id = user.id
+    mention = f"[{user_name}](tg://user?id={user_id})"
+    return mention
+
+@app.on_message(filters.command("start"))
+async def st_rep(client,message:Message):
+    message.reply(f"**🔰RVX M3U8 Downloader🔰\n\nWelcome {mention_user(message)}**")
+
 # Command to download and process video
-@app.on_message(filters.command("download"))
+@app.on_message(filters.command("m3u8"))
 async def download_m3u8(client, message: Message):
     try:
         args = message.text.split(" ", 1)

@@ -5,6 +5,8 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from Func.simples import mention_user, generate_thumbnail, get_tg_filename, teralinks_ex, extract_terabox_surl
 from Func.m3u8 import download_and_convert_video
 from plugins.authers import is_authorized
+from plugins.tera import extract_tera
+
 
 @Client.on_message(filters.regex(r'https?://[^\s]+'))
 async def handle_link(client, message):
@@ -24,4 +26,6 @@ async def handle_link(client, message):
   if tera_link:
     surl = extract_terabox_surl(tera_link)
     if surl:
-      
+      dl_link = extract_tera(surl)
+      if dl_link:
+        

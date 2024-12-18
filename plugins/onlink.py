@@ -11,23 +11,32 @@ from plugins.m3u8_handle import dl_m3u8
 @Client.on_message(filters.regex(r'https?://[^\s]+'))
 async def handle_link(client, message):
   link = message.text
-  teralink =""
   if not is_authorized(message.chat.id):
       await message.reply("**❌️You are not my auther for use me!...❌️**")
       return
-  if "tera" in link and "links" in link:
-    id=link.split('/')[-1]
-    tera_link = teralinks_ex(id)
-  elif "tera" in link and "/s/" in link:
-    tera_link = link
+  rmsg= await message.reply("🪚**Starting..**")
+  if "tera" in link:
+    teralink = ""
+    if "tera" in link and "links" in link:
+      id=link.split('/')[-1]
+      tera_link = teralinks_ex(id)
+    elif "tera" in link and "/s/" in link:
+      tera_link = link
+    else:
+      await message.reply('❌️Not Terabox link')
+      tera_link = None
+    if tera_link:
+      surl = extract_terabox_surl(tera_link)
+      if surl:
+         dl_link = extract_tera(surl)
+         if dl_link:
+             message.text = f"/m3u8 {dl_link}"
+             await dl_m3u8(client,message)
+      else:
+        await rmsg.edit_text(f"🤕** Sorry! cant get surl from {tera_link}")
+    else:
+      await rmsg.edit_text(f"🤕Sorry Cant regognize this is valid {tera_link}")
   else:
-    await message.reply('❌️Not Terabox link')
-    tera_link = None
-  if tera_link:
-    surl = extract_terabox_surl(tera_link)
-    if surl:
-      dl_link = extract_tera(surl)
-      if dl_link:
-        message.text = f"/m3u8 {dl_link}"
-        await dl_m3u8(client,message)
+    await rmsg.edit_text("🤕**Sorry I cannot download that link!...**") 
+    return None
         

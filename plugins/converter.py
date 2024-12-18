@@ -101,7 +101,7 @@ async def handle_button_click(client, query: CallbackQuery):
                 start_time = time.time()
                 downloaded_file_path = await original_msg.download(
                     file_name=file_name,
-                    progress=safe_progress_callback(progress_callback, q_msg, upload_start_time, last_update)
+                    progress=safe_progress_callback(progress_callback, q_msg, start_time, last_update)
                 )
 
                 # Notify the user after download

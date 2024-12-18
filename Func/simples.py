@@ -1,5 +1,6 @@
 import os, re
 import time
+import requests
 import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import Message
@@ -99,3 +100,32 @@ def extract_terabox_surl(link):
         return None
                     
 
+def teralinks_ex(id):
+    # The URL of the form action
+    url = "https://moneymatteronline.com/"
+
+    # The form data to send
+    payload = {
+        "clickarlink": id
+    }
+
+    try:
+        # Make the POST request
+        response = requests.post(url, data=payload, allow_redirects=True)
+
+        # Get the response body
+        response_body = response.text
+
+        # Use regex to find the TeraBox URL with "/s/" in the response
+        terabox_url_regex = r"https?:\/\/(?:www\.)?[^\/]*tera[^\/]*\/s\/[^\s\"'>]+"
+        match = re.search(terabox_url_regex, response_body)
+
+        if match:
+            # Return the extracted TeraBox URL
+            return match.group(0)
+        else:
+            # Return a message if no TeraBox URL is found
+            return None
+    except requests.RequestException as e:
+        # Handle errors
+        return None

@@ -1,4 +1,4 @@
-import os
+import os, re
 import time
 import subprocess
 from pyrogram import Client, filters
@@ -86,4 +86,16 @@ async def progress_callback(current, total, message: Message, start_time):
                 pass
 
 
+def extract_terabox_surl(link):
+    # Regular Expression to identify TeraBox links with "tera" and extract the surl
+    regex = r"(?:https?:\/\/(?:www\.)?[^\/]*tera[^\/]*\/s\/|surl=)([a-zA-Z0-9]+)"
+    
+    # Match the link with the regex
+    match = re.search(regex, link)
+    
+    if match:
+        return match.group(1)  # Return the extracted surl
+    else:
+        return None
+                    
 

@@ -13,6 +13,8 @@ from plugins.authers import is_authorized
 @Client.on_message(filters.command("m3u8"))
 async def dl_m3u8(client,message:Message):
     global AuthU, m3u8Status
+    if m3u8Status == 1:
+        await message.reply("**😰Only one task at one time cannot pararal download!**")
     try:
         args = message.text.split(" ", 1)
         if not is_authorized(message.chat.id):
@@ -24,6 +26,7 @@ async def dl_m3u8(client,message:Message):
 
         m3u8_url = args[1].strip()
         msg = await message.reply("✅ **Starting download and conversion...**")
+        m3u8Status = 1
         start_time = time.time()
 
         # File paths
@@ -61,7 +64,7 @@ async def dl_m3u8(client,message:Message):
         await msg.delete();
         os.remove(output_file)
         os.remove(thumb_file)
-
+        m3u8Status = 0
     except Exception as e:
         await message.reply(f"❌ An error occurred: {str(e)}")
         # Delete the files if they exist
@@ -70,4 +73,5 @@ async def dl_m3u8(client,message:Message):
 
         if os.path.exists(thumb_file):
            os.remove(thumb_file)
+        m3u8Status = 0
 

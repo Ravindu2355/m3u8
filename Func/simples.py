@@ -95,8 +95,8 @@ async def progress_callback(current, total, message: Message, start_time):
 
 
 def extract_terabox_surl(link):
-    # Regular Expression to identify TeraBox links with "tera" and extract the surl
-    regex = r"(?:https?:\/\/(?:www\.)?[^\/]*tera[^\/]*\/s\/|surl=)([a-zA-Z0-9]+)"
+    # Regular Expression to capture the "surl" including underscores and hyphens
+    regex = r"(?:https?:\/\/(?:www\.)?[^\/]*tera[^\/]*\/s\/|surl=)([\w\-]+)"
     
     # Match the link with the regex
     match = re.search(regex, link)
@@ -104,8 +104,7 @@ def extract_terabox_surl(link):
     if match:
         return match.group(1)  # Return the extracted surl
     else:
-        return None
-                    
+        return None                 
 
 def teralinks_ex(id):
     # The URL of the form action

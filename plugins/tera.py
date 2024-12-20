@@ -36,7 +36,7 @@ def eextract_tera(str):
     
     return m3u8_url
 
-def extract_tera(str):
+async def extract_tera(str, msg:Message):
     if not str:
         return None
     
@@ -50,6 +50,7 @@ def extract_tera(str):
     except requests.exceptions.RequestException as e:
         # Handle request errors (like network issues)
         print(f"Error fetching data: {e}")
+        await msg.reply(f"Err exurl Fetch: {e}")
         return None
     
     try:
@@ -58,11 +59,16 @@ def extract_tera(str):
     except ValueError:
         # Handle JSON parsing errors
         print("Error parsing JSON response")
+        await msg.reply(f"Json parse Err")
         return None
     
     # Extract data and construct the m3u8 URL
-    m3u8_url = j["m3u8Url"]
+    if j["s"] == 0:
+        return None
+        await msg.reply(f"Ex url returned  Err: {j["msg"]}")
+    m3u8_url = j["d"]["m3u8Url"]
     if m3u8_url:
+       await msg.reply(f"**🔯Found M3U8: {m3u8_url} \n🔰Download will start soon!**")
        return m3u8_url
     else:
        return None

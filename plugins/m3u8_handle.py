@@ -4,16 +4,15 @@ import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import Config
-from globals import AuthU
+from globals import AuthU, m3u8Status
 from Func.simples import mention_user, progress_callback, generate_thumbnail
 from Func.m3u8 import download_and_convert_video
 from plugins.authers import is_authorized
 
 
-
 @Client.on_message(filters.command("m3u8"))
 async def dl_m3u8(client,message:Message):
-    global AuthU
+    global AuthU, m3u8Status
     try:
         args = message.text.split(" ", 1)
         if not is_authorized(message.chat.id):
@@ -28,9 +27,10 @@ async def dl_m3u8(client,message:Message):
         start_time = time.time()
 
         # File paths
-        output_file = "output.mp4"
-        thumb_file = "thumb.jpg"
-
+        nname=f"video_{time.time()}_"
+        output_file = f"{nname}output.mp4"
+        thumb_file = f"{nname}thumb.jpg"
+        
         duration = await download_and_convert_video(msg, m3u8_url, output_file)
 
         if not os.path.exists(output_file):

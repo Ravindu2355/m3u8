@@ -10,3 +10,5 @@ class Config(object):
   AUTH = os.getenv("auth")
   
   OWNER =os.getenv("owner")
+
+  PW =os.getenv("spw")

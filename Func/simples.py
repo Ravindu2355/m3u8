@@ -6,6 +6,13 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from config import Config
 from globals import AuthU
+import urllib.parse
+
+def url_decode(encoded_string):
+    return urllib.parse.unquote(encoded_string)
+
+def url_encode(string):
+    return urllib.parse.quote(string)
 
 def mention_user(message:Message):
     user = message.from_user

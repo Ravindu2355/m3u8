@@ -11,4 +11,6 @@ class Config(object):
   
   OWNER =os.getenv("owner")
 
+  TeraExScript = os.getenv("tscript")
+
   PW =int(os.getenv("spw"))

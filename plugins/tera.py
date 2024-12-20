@@ -64,14 +64,16 @@ async def extract_tera(str, msg:Message):
     
     # Extract data and construct the m3u8 URL
     if j["s"] == 0:
-        await msg.reply(f"Ex url returned  Err: {j["msg"]}")
+        emsg=j["msg"]
+        await msg.reply(f"Ex url returned  Err: {emsg}")
         return None
     m3u8_url = j["d"]["m3u8Url"]
     if m3u8_url:
        await msg.reply(f"**🔯Found M3U8: {m3u8_url} \n🔰Download will start soon!**")
        return m3u8_url
     else:
-       await msg.reply(f"No m3u8: {j["msg"]")
+       emsg=j["msg"]
+       await msg.reply(f"No m3u8: {emsg}")
        return None
 
 

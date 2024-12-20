@@ -11,13 +11,16 @@ from config import Config
 async def extract_tera(str, msg:Message):
     if not str:
         return None
-    str = url_encode(str)
+    #str = url_encode(str)
     # Construct the URL
-    url = f"{Config.TeraExScript}?pw={Config.PW}&shorturl={str}"
-  
+    #url = f"{Config.TeraExScript}?pw={Config.PW}&shorturl={str}"
+    req = {
+        "shorturl":str,
+        "pw":Config.PW
+    }
     try:
         # Send the GET request
-        response = requests.get(url)
+        response = requests.post(Config.TeraExScript,json=req)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
     except requests.exceptions.RequestException as e:
         # Handle request errors (like network issues)

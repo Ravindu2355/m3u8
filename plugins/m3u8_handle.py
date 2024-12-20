@@ -64,3 +64,10 @@ async def dl_m3u8(client,message:Message):
 
     except Exception as e:
         await message.reply(f"❌ An error occurred: {str(e)}")
+        # Delete the files if they exist
+        if os.path.exists(output_file):
+           os.remove(output_file)
+
+        if os.path.exists(thumb_file):
+           os.remove(thumb_file)
+

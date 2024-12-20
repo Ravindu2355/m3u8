@@ -9,12 +9,20 @@ from Func.simples import mention_user, progress_callback, generate_thumbnail
 from Func.m3u8 import download_and_convert_video
 from plugins.authers import is_authorized
 
+@Client.on_message(filters.command("runs"))
+async def st_pps(client,message:Message):
+    global m3u8Status, AuthU
+    if not is_authorized(message.chat.id):
+        await message.reply("**❌️You are not my auther for use me!...❌️**")
+        return
+    await message.reply(f"🛠**This is current processes:\n\n{m3u8Status}**")
 
 @Client.on_message(filters.command("m3u8"))
 async def dl_m3u8(client,message:Message):
     global AuthU, m3u8Status
-    if m3u8Status == 1:
-        await message.reply("**😰Only one task at one time cannot pararal download!**")
+    if m3u8Status > Config.PRARAL_LIMIT:
+        await message.reply(f"**😰Only {Config.PRARAL_LIMIT} of tasks at one time.\nCan not pararal download More please wait**")
+        return
     try:
         args = message.text.split(" ", 1)
         if not is_authorized(message.chat.id):
@@ -26,7 +34,8 @@ async def dl_m3u8(client,message:Message):
 
         m3u8_url = args[1].strip()
         msg = await message.reply("✅ **Starting download and conversion...**")
-        m3u8Status = 1
+        if m3u8Status >= 0:
+            m3u8Status += 1
         start_time = time.time()
 
         # File paths
@@ -64,7 +73,8 @@ async def dl_m3u8(client,message:Message):
         await msg.delete();
         os.remove(output_file)
         os.remove(thumb_file)
-        m3u8Status = 0
+        if m3u8Status >= 1:
+            m3u8Status -= 1
     except Exception as e:
         await message.reply(f"❌ An error occurred: {str(e)}")
         # Delete the files if they exist
@@ -73,5 +83,6 @@ async def dl_m3u8(client,message:Message):
 
         if os.path.exists(thumb_file):
            os.remove(thumb_file)
-        m3u8Status = 0
+        if m3u8Status >= 1:
+            m3u8Status -= 1
 

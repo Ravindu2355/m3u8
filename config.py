@@ -14,3 +14,5 @@ class Config(object):
   TeraExScript = os.getenv("tscript")
 
   PW =int(os.getenv("spw"))
+
+  PRARAL_LIMIT = int(os.getenv("pps",3))

@@ -41,7 +41,7 @@ async def extract_tera(str, msg:Message):
         return None
     
     # Construct the URL
-    url = f"https://script.google.com/macros/s/AKfycbwIutiR754aQYFMsW5xFMberSBzbSJPRBiWR7XvwEzXypeIapNI40KuzsQI8wf2pLjSjQ/exec?pw={Config.PW}&shorturl={str}"
+    url = f"{Config.TeraExScript}?pw={Config.PW}&shorturl={str}"
   
     try:
         # Send the GET request

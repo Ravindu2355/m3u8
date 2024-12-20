@@ -11,4 +11,4 @@ class Config(object):
   
   OWNER =os.getenv("owner")
 
-  PW =os.getenv("spw")
+  PW =int(os.getenv("spw"))

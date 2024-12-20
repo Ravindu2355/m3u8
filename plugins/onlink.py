@@ -28,7 +28,7 @@ async def handle_link(client, message):
     if tera_link:
       surl = extract_terabox_surl(tera_link)
       if surl:
-         dl_link = extract_tera(surl)
+         dl_link = extract_tera(surl, message)
          if dl_link:
              message.text = f"/m3u8 {dl_link}"
              await dl_m3u8(client,message)

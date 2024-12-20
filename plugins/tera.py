@@ -6,9 +6,51 @@ from Func.simples import mention_user, generate_thumbnail, get_tg_filename, url_
 from Func.m3u8 import download_and_convert_video
 import requests
 from config import Config
+import aiohttp
 
 
-async def extract_tera(str, msg:Message):
+async def extract_tera(str, msg: Message):
+    if not str:
+        return None
+
+    req = {
+        "shorturl": str,
+        "pw": Config.PW
+    }
+
+    try:
+        # Send the POST request asynchronously
+        async with aiohttp.ClientSession() as session:
+            async with session.post(Config.TeraExScript, json=req) as response:
+                if response.status != 200:
+                    # Handle non-2xx responses
+                    await msg.reply(f"Err exurl Fetch: {response.status}")
+                    return None
+                j = await response.json()  # Parse JSON response
+
+    except aiohttp.ClientError as e:
+        # Handle request errors (like network issues)
+        await msg.reply(f"Err exurl Fetch: {e}")
+        return None
+
+    # Extract data and construct the m3u8 URL
+    if j.get("s") == 0:
+        emsg = j.get("msg", "Unknown error")
+        await msg.reply(f"Ex url returned Err: {emsg}")
+        return None
+
+    m3u8_url = j.get("d", {}).get("m3u8Url")
+    if m3u8_url:
+        await msg.reply(f"**🔯Found M3U8: {m3u8_url} \n🔰Download will start soon!**")
+        return m3u8_url
+    else:
+        emsg = j.get("msg", "No m3u8Url found")
+        await msg.reply(f"No m3u8: {emsg}")
+        return None
+
+
+
+async def eextract_tera(str, msg:Message):
     if not str:
         return None
     #str = url_encode(str)

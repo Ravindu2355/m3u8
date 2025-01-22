@@ -16,7 +16,7 @@ def human_readable_size(size):
     return f"{size:.2f} TB"
 
 # Progress callback for downloads (updated with floodwait protection)
-async def progress_callback(current, total, message: Message, start_time, last_update):
+async def progress_callback(current, total, message: Message, p_title, start_time, last_update):
     global last_progress_msg
     elapsed_time = time.time() - start_time
     speed = current / elapsed_time / 1024
@@ -25,9 +25,9 @@ async def progress_callback(current, total, message: Message, start_time, last_u
 
     # Create progress message
     progress_msg = (
-        f"**Downloading...**\n"
+        f"**{p_title}**\n"
         f"**Progress:** {progress:.2f}%\n"
-        f"**Downloaded:** {human_readable_size(current)} / {human_readable_size(total)}\n"
+        f"**Done:** {human_readable_size(current)} / {human_readable_size(total)}\n"
         f"**Speed:** {speed:.2f} KB/s\n"
         f"**ETA:** {int(eta)}s"
     )
@@ -102,7 +102,7 @@ async def handle_button_click(client, query: CallbackQuery):
                 downloaded_file_path = await original_msg.download(
                     file_name=file_name,
                     progress=progress_callback,
-                    progress_args=(q_msg, start_time,last_update)
+                    progress_args=(q_msg, "Downloading...", start_time,last_update)
                  )
 
                 # Notify the user after download
@@ -134,10 +134,10 @@ async def handle_button_click(client, query: CallbackQuery):
                           video=video,
                           duration=int(duration),
                           thumb=thumb,  # Attach the generated thumbnail
-                          caption="✅ **Here is yor video!** ✅️",
+                          caption=f"✅ **Here is yor video!**✅️\n\n{output_file}",
                           supports_streaming=True,  # Enables streaming
                           progress=progress_callback,
-                          progress_args=(q_msg, upload_start_time,last_update)
+                          progress_args=(q_msg, "Uploading...", upload_start_time,last_update)
                          )
 
                          #await message.reply("✅ **Upload complete!**")

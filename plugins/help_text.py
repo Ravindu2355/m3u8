@@ -10,4 +10,4 @@ async def st_rep(client,message:Message):
 
 @Client.on_message(filters.command("help"))
 async def st_help(client,message:Message):
-    await message.reply("🫠**No avalable!**")
+    await message.reply("🫠**No avalable!**\n\n**Commands: **\n\n  /start\n  /help\n  /checkauth\n  /addauth\n  /removeauth\n  /m3u8\n  /logo : use carefully")

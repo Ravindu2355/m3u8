@@ -29,7 +29,7 @@ async def dl_m3u8(client,message:Message):
             await message.reply("**❌️You are not my auther for use me!...❌️**")
             return
         if len(args) < 2:
-            await message.reply("Please provide an m3u8 URL. Example: `/download m3u8url`")
+            await message.reply("Please provide an m3u8 URL. Example: `/m3u8 m3u8url`")
             return
 
         m3u8_url = args[1].strip()
@@ -84,5 +84,5 @@ async def dl_m3u8(client,message:Message):
         if os.path.exists(thumb_file):
            os.remove(thumb_file)
         if m3u8Status >= 1:
-            m3u8Status -= 1
+           m3u8Status -= 1
 

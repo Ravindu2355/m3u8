@@ -7,6 +7,20 @@ from Func.m3u8 import download_and_convert_video
 # A global dictionary to store messages for handling callbacks
 DOWNLOAD_TASKS = {}
 
+
+def changeFileExt(filename: str, new_extension: str) -> str:
+    
+    # Ensure new_extension starts with a dot
+    if not new_extension.startswith('.'):
+        new_extension = '.' + new_extension
+
+    # Get the filename without its current extension
+    name, _ = os.path.splitext(filename)
+
+    # Return the new filename with the changed extension
+    return name + new_extension
+
+
 # Helper function for human-readable size format
 def human_readable_size(size):
     for unit in ['B', 'KB', 'MB', 'GB']:
@@ -52,8 +66,8 @@ async def handle_forwarded_file(client, message: Message):
     # Reply with inline buttons
     buttons = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("🎥 MP4", callback_data=f"download_mp4")],
-            [InlineKeyboardButton("🎥 MKV", callback_data=f"download_mkv")],
+            [InlineKeyboardButton("🎥 MP4", callback_data=f"convertTo_mp4")],
+            [InlineKeyboardButton("🎥 MKV", callback_data=f"convertTo_mkv")],
             [InlineKeyboardButton("❌ Cancel", callback_data="cancel")],
              
         ]
@@ -78,7 +92,7 @@ async def handle_button_click(client, query: CallbackQuery):
         return
 
     # Extract the message ID from the callback data
-    if user_action.startswith("download_"):
+    if user_action.startswith("convertTo_"):
         converting_type = user_action.split("_")[1]
         #if original_msg_id in DOWNLOAD_TASKS:
             #original_message = DOWNLOAD_TASKS[original_msg_id]
@@ -92,7 +106,8 @@ async def handle_button_click(client, query: CallbackQuery):
             download_path = "./downloads"
             if not os.path.exists(download_path):
                 os.makedirs(download_path)
-            file_name = os.path.join(download_path, await get_tg_filename(original_msg))
+            tgORN = await get_tg_filename(original_msg)
+            file_name = os.path.join(download_path, tgORN)
             # Initialize progress tracking
             last_update = {"time": 0, "msg": ""}
 
@@ -109,7 +124,7 @@ async def handle_button_click(client, query: CallbackQuery):
                 await q_msg.edit_text(f"✅ **File downloaded successfully!**\n**Path:** `{downloaded_file_path}`")
                 print(f"File saved to: {downloaded_file_path}")
                 start_time = time.time()
-                output_file = f"output.{converting_type}"
+                output_file = changeFileExt(tgORN,converting_type) #f"output.{converting_type}"
                 thumb_file = "thumb.jpg"
 
                 duration = await download_and_convert_video(q_msg, downloaded_file_path, output_file)

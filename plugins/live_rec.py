@@ -44,7 +44,7 @@ async def update_progress_message(bot, message, output_file, start_time):
 
         try:
             # Update the message every 10 seconds
-            await message.edit(progress_message)
+            await message.edit_text(progress_message)
         except Exception as e:
             print(f"Error updating progress message: {e}")
         
@@ -68,8 +68,8 @@ async def record_m3u8(bot, message, url, total_duration):
         process = subprocess.Popen(command)
 
         # Start progress message
-        progress_message = await message.reply("🎥 Recording started...", quote=True)
-        await update_progress_message(bot, progress_message, output_file, start_time)
+        await message.edit_text("🎥 Recording started...")
+        await update_progress_message(bot, message, output_file, start_time)
 
         while process.poll() is None:
             # Check the file size every 5 seconds
@@ -93,7 +93,7 @@ async def record_command(bot, message):
     try:
         args = message.text.split()
         if len(args) != 3:
-            await message.reply("❌ Usage: `/record <M3U8_URL> <duration_in_seconds>`")
+            await message.reply("❌ Usage: `/record M3U8 URL durationInSeconds`")
             return
 
         m3u8_url = args[1]

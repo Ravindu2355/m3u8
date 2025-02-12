@@ -93,7 +93,7 @@ async def record_command(bot, message):
     try:
         args = message.text.split()
         if len(args) != 3:
-            await message.reply("❌ Usage: `/record <M3U8_URL> <duration_in_seconds>`", quote=True)
+            await message.reply("❌ Usage: `/record <M3U8_URL> <duration_in_seconds>`")
             return
 
         m3u8_url = args[1]

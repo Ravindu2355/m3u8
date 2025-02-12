@@ -33,13 +33,41 @@ async def get_tg_filename(message:Message):
     return file_name
 
 # Generate thumbnail using ffmpeg
+"""
 def generate_thumbnail(video_path, thumb_path, time_stamp="00:00:05"):
     command = [
         "ffmpeg", "-i", video_path, "-ss", time_stamp, "-vframes", "1", thumb_path
     ]
     subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+"""
 
+def generate_thumbnail(video_path, thumb_path):
+    # Get video duration using ffprobe
+    command = [
+        "ffprobe", "-i", video_path, "-show_entries", "format=duration",
+        "-v", "quiet", "-of", "csv=p=0"
+    ]
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    
+    try:
+        duration = float(result.stdout.strip())
+    except ValueError:
+        raise Exception("Could not determine video duration.")
+    
+    # Calculate 1% timestamp
+    time_stamp = max(1, int(duration * 0.01))  # Ensure at least 1 second
+    
+    # Generate thumbnail
+    command = [
+        "ffmpeg", "-i", video_path, "-ss", str(time_stamp), "-vframes", "1", thumb_path
+    ]
+    subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
+    return duration  # Return total duration
 
+# Example usage:
+# duration = generate_thumbnail("video.mp4", "thumb.jpg")
+# print(f"Video Duration: {duration} seconds")
 
 # Global variables to store the last progress message and update time
 last_msg = ""

@@ -4,6 +4,9 @@ import os
 import time
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
+from plugins.converter import progress_callback
+from Func.simples import generate_thumbnail
+
 
 # Max file size limit (1.99GB)
 MAX_FILE_SIZE = 1.99 * 1024 * 1024 * 1024  # 1.99GB in bytes
@@ -15,13 +18,43 @@ async def upload_and_start_new_file(bot, message, output_file, start_time):
     try:
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
             await message.reply("✅ Recording complete! Uploading now...")
+            last_update = {"time": 0, "msg": ""}
+            # Generate thumbnail
+            await message.edit_text("🖼 **Generating new thumbnail...**")
+            thumb_file=f"{output_file}.jpg"
+            duration = generate_thumbnail(output_file, thumb_file)
 
+            if not os.path.exists(thumb_file):
+                    await message.edit_text("❌ Failed to gebarate thumb")
+                    return
+            await message.edit_text("📤 **Uploading video with thumbnail...**")
+            upload_start_time = time.time()
+
+            with open(output_file, "rb") as video, open(thumb_file, "rb") as thumb:
+                await bot.send_video(
+                          chat_id=message.chat.id,
+                          video=video,
+                          duration=int(duration),
+                          thumb=thumb,  # Attach the generated thumbnail
+                          caption=f"✅ **Here is yor video!**✅️\n\n🎬 **Recording Complete!**\nDuration: {int(time.time() - start_time)} sec.\n\n{output_file}",
+                          supports_streaming=True,  # Enables streaming
+                          progress=progress_callback,
+                          progress_args=(message, "**Uploading...**", upload_start_time, last_update)
+                          )
+
+                         #await message.reply("✅ **Upload complete!**")
+                #await q_msg.delete();
+                os.remove(output_file)
+                os.remove(thumb_file)
+                #os.remove(downloaded_file_path)
+
+            
             # Upload the video to Telegram
-            await bot.send_video(
+            """await bot.send_video(
                 chat_id=message.chat.id,
                 video=output_file,
                 caption=f"🎬 **Recording Complete!**\nDuration: {int(time.time() - start_time)} sec."
-            )
+            )"""
 
         # Delete the file after sending
         os.remove(output_file)

@@ -43,11 +43,9 @@ async def upload_and_start_new_file(bot, message, output_file, start_time):
                           )
 
                          #await message.reply("✅ **Upload complete!**")
-                #await q_msg.delete();
-                os.remove(output_file)
-                os.remove(thumb_file)
-                #os.remove(downloaded_file_path)
-
+            #await message.delete();
+            os.remove(output_file)
+            os.remove(thumb_file)
             
             # Upload the video to Telegram
             """await bot.send_video(

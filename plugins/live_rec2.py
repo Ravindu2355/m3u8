@@ -64,7 +64,7 @@ async def update_progress_message(bot, message, output_file, start_time):
     """
     Updates the progress message every 10 seconds with recorded time and size.
     """
-    while os.path.exists(output_file) && RF == 1:
+    while os.path.exists(output_file) and RF == 1:
         elapsed_time = int(time.time() - start_time)
         file_size = os.path.getsize(output_file) / (1024 * 1024)  # Convert to MB
 

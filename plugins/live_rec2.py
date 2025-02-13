@@ -136,7 +136,7 @@ async def record_command(bot, message):
         m3u8_url = args[1]
         total_duration = int(args[2])
 
-        recording_message = await message.reply("🎥 Recording started...", quote=True)
+        recording_message = await message.reply("🎥 Recording task Adding...", quote=True)
         await record_m3u8(bot, recording_message, m3u8_url, total_duration)
 
     except Exception as e:

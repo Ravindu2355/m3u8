@@ -7,6 +7,7 @@ from pyrogram.errors import FloodWait
 
 # Max file size limit (1.99GB)
 MAX_FILE_SIZE = 1.99 * 1024 * 1024 * 1024  # 1.99GB in bytes
+RF = 0
 
 async def upload_and_start_new_file(bot, message, output_file, start_time):
     """
@@ -32,7 +33,8 @@ async def update_progress_message(bot, message, output_file, start_time):
     """
     Updates the progress message every 10 seconds with current recorded time and size.
     """
-    while os.path.exists(output_file):
+    pm = await message.reply("Progress Showing!...")
+    while os.path.exists(output_file) and RF == 1:
         # Calculate elapsed time and file size
         elapsed_time = int(time.time() - start_time)
         file_size = os.path.getsize(output_file) / (1024 * 1024)  # Convert to MB
@@ -44,11 +46,12 @@ async def update_progress_message(bot, message, output_file, start_time):
 
         try:
             # Update the message every 10 seconds
-            await message.edit_text(progress_message)
+            await pm.edit_text(progress_message)
         except Exception as e:
             print(f"Error updating progress message: {e}")
         
         time.sleep(10)  # Sleep for 10 seconds before updating the message
+    await pm.delete()
 
 async def record_m3u8(bot, message, url, total_duration):
     """
@@ -69,6 +72,7 @@ async def record_m3u8(bot, message, url, total_duration):
 
         # Start progress message
         await message.edit_text("🎥 Recording started...")
+        RF = 1
         await update_progress_message(bot, message, output_file, start_time)
 
         while process.poll() is None:
@@ -76,8 +80,10 @@ async def record_m3u8(bot, message, url, total_duration):
             time.sleep(5)
             if os.path.exists(output_file) and os.path.getsize(output_file) >= MAX_FILE_SIZE:
                 process.terminate()  # Stop recording if file exceeds 1.99GB
+                RF = 0
                 break
 
+        RF = 0
         await upload_and_start_new_file(bot, message, output_file, start_time)
 
         # Increase the duration and file index for the next chunk

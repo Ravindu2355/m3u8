@@ -64,6 +64,7 @@ async def update_progress_message(bot, message, output_file, start_time):
     """
     Updates the progress message every 10 seconds with recorded time and size.
     """
+    pm = await message.reply("Progress Showing!...")
     while os.path.exists(output_file) and RF == 1:
         elapsed_time = int(time.time() - start_time)
         file_size = os.path.getsize(output_file) / (1024 * 1024)  # Convert to MB
@@ -71,11 +72,12 @@ async def update_progress_message(bot, message, output_file, start_time):
         progress_message = f"🟢 RECORDING 🟢\n📁 Name: {output_file}\n⏳ Recorded Time: {elapsed_time} sec\n💾 Size: {file_size:.2f} MB"
 
         try:
-            await message.edit_text(progress_message)
+            await pm.edit_text(progress_message)
         except Exception as e:
             print(f"Error updating progress message: {e}")
 
-        time.sleep(10)  # Sleep for 10 seconds before updating
+        time.sleep(10)# Sleep for 10 seconds before updating
+    await pm.delete()
 
 async def record_m3u8(bot, message, url, total_duration):
     """

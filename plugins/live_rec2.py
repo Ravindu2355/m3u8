@@ -53,10 +53,10 @@ async def upload_and_start_new_file(bot, message, output_file, start_time):
                 video=output_file,
                 caption=f"🎬 **Recording Complete!**\nDuration: {int(time.time() - start_time)} sec."
             )"""
-
-        # Delete the file after sending
-        os.remove(output_file)
-
+        else:
+            await message.edit_text("Sorry!, cant find that file or it was 0 bytes")
+            print("Failed to upload no file or 0 bytes")
+            
     except Exception as e:
         await message.reply(f"❌ Error during upload: {e}")
 
@@ -121,7 +121,7 @@ async def record_m3u8(bot, message, url, total_duration):
         current_duration += 3600  # 1 hour chunks
         file_index += 1
 
-@Client.on_message(filters.command("record"))
+@Client.on_message(filters.command("reclive"))
 async def record_command(bot, message):
     """
     Command: /record m3u8URL durationInSeconds

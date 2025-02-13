@@ -7,7 +7,7 @@ from pyrogram.errors import FloodWait
 from plugins.converter import progress_callback
 from Func.simples import generate_thumbnail
 
-
+RF = 0
 # Max file size limit (1.99GB)
 MAX_FILE_SIZE = 1.99 * 1024 * 1024 * 1024  # 1.99GB in bytes
 
@@ -17,7 +17,7 @@ async def upload_and_start_new_file(bot, message, output_file, start_time):
     """
     try:
         if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
-            await message.reply("✅ Recording complete! Uploading now...")
+            await message.edit_text("✅ Recording complete! Uploading now...")
             last_update = {"time": 0, "msg": ""}
             # Generate thumbnail
             await message.edit_text("🖼 **Generating new thumbnail...**")
@@ -43,7 +43,7 @@ async def upload_and_start_new_file(bot, message, output_file, start_time):
                           )
 
                          #await message.reply("✅ **Upload complete!**")
-            #await message.delete();
+            await message.delete();
             os.remove(output_file)
             os.remove(thumb_file)
             
@@ -64,14 +64,11 @@ async def update_progress_message(bot, message, output_file, start_time):
     """
     Updates the progress message every 10 seconds with recorded time and size.
     """
-    while os.path.exists(output_file):
+    while os.path.exists(output_file) && RF == 1:
         elapsed_time = int(time.time() - start_time)
         file_size = os.path.getsize(output_file) / (1024 * 1024)  # Convert to MB
 
-        progress_message = f"🟢 RECORDING 🟢\n"
-        progress_message += f"📁 Name: {output_file}\n"
-        progress_message += f"⏳ Recorded Time: {elapsed_time} sec\n"
-        progress_message += f"💾 Size: {file_size:.2f} MB"
+        progress_message = f"🟢 RECORDING 🟢\n📁 Name: {output_file}\n⏳ Recorded Time: {elapsed_time} sec\n💾 Size: {file_size:.2f} MB"
 
         try:
             await message.edit_text(progress_message)
@@ -99,24 +96,29 @@ async def record_m3u8(bot, message, url, total_duration):
         process = subprocess.Popen(command)
 
         await message.edit_text("🎥 Recording started...")
-        progress_task = bot.loop.create_task(update_progress_message(bot, message, output_file, start_time))
-
+        RF = 1
+        update_progress_message(bot, message, output_file, start_time)
+        
         while process.poll() is None:
             time.sleep(5)
             if os.path.exists(output_file) and os.path.getsize(output_file) >= MAX_FILE_SIZE:
-                process.terminate()  # Stop recording if file exceeds 1.99GB
+                process.terminate()# Stop recording if file exceeds 1.99GB
+                RF = 0
                 break
 
         # Cancel progress updates
-        progress_task.cancel()
-
+        RF = 0
+        
         # Check if ffmpeg stopped due to a broken stream
-        if process.returncode != 0:  
+        if process.returncode != 0:
+            RF = 0
             await message.reply("❌ Live stream stopped unexpectedly. Uploading recorded file...")
             await upload_and_start_new_file(bot, message, output_file, start_time)
             break  # Stop recording
 
+        RF = 0
         await upload_and_start_new_file(bot, message, output_file, start_time)
+        
 
         current_duration += 3600  # 1 hour chunks
         file_index += 1

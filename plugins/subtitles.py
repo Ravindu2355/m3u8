@@ -103,6 +103,21 @@ async def process_subtitles(bot, query):
             "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
             "-c:a", "copy", output_path
         ]
+        
+    elif method == "l264crf23":
+        ffmpeg_cmd = [
+    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",  
+    "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",  # Faster encoding
+    "-c:a", "copy", output_path
+        ]
+
+    elif method == "l264crf28":
+        ffmpeg_cmd = [
+    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
+    "-c:v", "libx264", "-preset", "veryfast", "-crf", "28",  # Increase CRF for faster encoding
+    "-c:a", "copy", output_path
+        ]
+        
     else:
         ffmpeg_cmd = [
             "ffmpeg", "-i", video_path, "-i", sub_path,

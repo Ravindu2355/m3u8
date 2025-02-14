@@ -43,7 +43,7 @@ download_path = "./downloads"
 
 
 # Handle subtitle merging method
-@Client.on_callback_query(filters.regex(r"burn|mov_text"))
+@Client.on_callback_query(filters.regex(r"burn|mov_text|l264crf"))
 async def process_subtitles(bot, query):
     q_msg = query.message
     await q_msg.edit_text(f"**Subtitle Merger**\n\n- {query.data}")

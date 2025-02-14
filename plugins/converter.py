@@ -81,8 +81,8 @@ def safe_progress_callback(callback, *args):
     return wrapper
 
 # Callback query handler for button actions
-@Client.on_callback_query()
-async def handle_button_click(client, query: CallbackQuery):
+@Client.on_callback_query(filters.regex(r"^convertTo_"))
+async def handle_button_click_convert(client, query: CallbackQuery):
     user_action = query.data
     q_msg = query.message
     original_msg = q_msg.reply_to_message

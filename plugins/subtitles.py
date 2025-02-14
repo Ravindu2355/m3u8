@@ -29,7 +29,7 @@ async def subtitle_handler(bot, message):
         return 
 
     #user_files[message.from_user.id]["subtitle"] = message.document.file_id
-    await message.reply_text(
+    await message.reply(
         "**Subtitle Merger**\n\n**Select the subtitle method:**\n\n **Burn-in**:Best method.That subs are pernement part of video.\n **Move_text**:Also working in most of devices but some tvs will not supporting.but faster than burn-in",
         reply_to_message_id=message.id,
         reply_markup=InlineKeyboardMarkup([

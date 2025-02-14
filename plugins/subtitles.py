@@ -94,42 +94,75 @@ async def process_subtitles(bot, query):
         )
     except Exception as e:
         await msg.edit_text(f"❌ **Error on Download Files:** \n\n{str(e)}")
+        return
 
     await msg.edit_text("Merging subtitles...")
 
-    # Select FFmpeg command based on method
     if method == "burn":
         ffmpeg_cmd = [
-            "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}", "-c:a", "copy", output_path
+            "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
+            "-c:a", "copy", output_path, "-progress", "pipe:1", "-nostats"
         ]
     else:
         ffmpeg_cmd = [
-            "ffmpeg", "-i", video_path, "-i", sub_path, "-c:v", "copy", "-c:a", "copy", "-c:s", "mov_text", output_path
+            "ffmpeg", "-i", video_path, "-i", sub_path,
+            "-c:v", "copy", "-c:a", "copy", "-c:s", "mov_text",
+            output_path, "-progress", "pipe:1", "-nostats"
         ]
 
     process = await asyncio.create_subprocess_exec(
         *ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
-    start_time = time.time()
+    duration = None
+    progress_time = 0
+    #last_update = {"msg": ""}
+    error_log = []
 
     # Progress update loop
     while True:
-        await asyncio.sleep(10)
-        if process.returncode is not None:
-            break  # Exit loop if FFmpeg has finished
+        # Read FFmpeg output
+        line = await process.stdout.readline()
+        if not line:
+            break  # FFmpeg has finished
 
-        # Get progress percentage
-        elapsed_time = time.time() - start_time
-        percentage = min(int((elapsed_time / 60) * 100), 100)
-        eta = max(int((60 - elapsed_time)), 0)
+        line = line.decode().strip()
 
-        pr_msg = f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec"
-        if pr_msg != last_update["msg"]:
-           await msg.edit_text(pr_msg)
-           last_update["msg"] = pr_msg
+        # Capture FFmpeg errors
+        err_line = await process.stderr.readline()
+        if err_line:
+            err_line = err_line.decode().strip()
+            error_log.append(err_line)
 
-    await process.wait()
+        # Extract video duration
+        if duration is None:
+            match = re.search(r"Duration: (\d+):(\d+):(\d+\.\d+)", line)
+            if match:
+                h, m, s = map(float, match.groups())
+                duration = h * 3600 + m * 60 + s
+
+        # Extract encoding progress
+        match = re.search(r"out_time_ms=(\d+)", line)
+        if match:
+            progress_time = int(match.group(1)) / 1_000_000  # Convert to seconds
+
+        if duration:
+            percentage = min(int((progress_time / duration) * 100), 100)
+            eta = max(int(duration - progress_time), 0)
+            pr_msg = f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec"
+
+            if pr_msg != last_update["msg"]:
+                await msg.edit_text(pr_msg)
+                last_update["msg"] = pr_msg
+
+    # Wait for process to finish
+    return_code = await process.wait()
+
+    if return_code != 0:
+        error_message = "\n".join(error_log[-10:])  # Show last 10 error lines
+        await msg.edit_text(f"❌ FFmpeg Error!\n```\n{error_message}\n```", parse_mode="Markdown")
+        return
+
 
     # Send the processed video
     await msg.edit_text("Uploading new video...")

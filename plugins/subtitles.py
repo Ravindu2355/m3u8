@@ -44,11 +44,12 @@ download_path = "./downloads"
 @Client.on_callback_query(filters.regex(r"burn|mov_text|cancel"))
 async def process_subtitles(bot, query):
     q_msg = query.message
-    q_msg.reply(f"query {query.data}")
+    await q_msg.edit_text(f"**Subtitle Merger**\n\n- {query.data}")
     if not q_msg.reply_to_message or not q_msg.reply_to_message.document:
         return
     doc_msg = q_msg.reply_to_message
     if not doc_msg.reply_to_message or not (doc_msg.reply_to_message.video or (doc_msg.reply_to_message.document and "video" in doc_msg.reply_to_message.document.mime_type)):
+        await q_msg.edit_text(f"srt was not replying to video")
         return
     vid_msg = doc_msg.reply_to_message
     

@@ -18,7 +18,7 @@ user_files = {}
     #await message.reply_text("Now, please send me the **SRT** or **ASS** subtitle file by replying to this video.")
 
 # Command to handle subtitle files
-@Client.on_message(filters.document & filters.private)
+#@Client.on_message(filters.document & filters.private)
 async def subtitle_handler(bot, message):
     if not message.reply_to_message or not message.reply_to_message.video:
         return await message.reply_text("Please send a **video first**, then reply with the subtitle file.")

@@ -76,7 +76,10 @@ async def handle_forwarded_file(client, message: Message):
             reply_to_message_id=message.id,
             reply_markup=InlineKeyboardMarkup([
                [InlineKeyboardButton("🔥 Burn-in (Hardcoded/Slow)", callback_data="burn")],
-               [InlineKeyboardButton("📝 Move Text (Softcoded/Fast)", callback_data="mov_text")]
+               [InlineKeyboardButton("🔥 Burn-in H264-crf23 (Hardcoded/Slow)", callback_data="l264crf23")],
+               [InlineKeyboardButton("🔥 Burn-in H264-crf28 (Hardcoded/Slow)", callback_data="l264crf28")],
+               [InlineKeyboardButton("📝 Move Text (Softcoded/Fast)", callback_data="mov_text")],
+               [InlineKeyboardButton("❌️**Cancel**", callback_data="cancel")],
             ])
         )
         #await message.reply("❌ This document is not a video file.")

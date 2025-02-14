@@ -39,10 +39,12 @@ async def subtitle_handler(bot, message):
     )
     
 download_path = "./downloads"
+
 # Handle subtitle merging method
-@Client.on_callback_query(filters.regex("burn|mov_text|cancel"))
+@Client.on_callback_query(filters.regex(r"burn|mov_text|cancel"))
 async def process_subtitles(bot, query):
     q_msg = query.message
+    q_msg.reply(f"query {query.data}")
     if not q_msg.reply_to_message or not q_msg.reply_to_message.document:
         return
     doc_msg = q_msg.reply_to_message

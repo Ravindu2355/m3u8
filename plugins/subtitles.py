@@ -43,7 +43,7 @@ download_path = "./downloads"
 
 
 # Handle subtitle merging method
-@Client.on_callback_query(filters.regex(r"burn|mov_text|l264crf"))
+@Client.on_callback_query(filters.regex(r"burn|mov_text|l264crf|mkv_mux"))
 async def process_subtitles(bot, query):
     q_msg = query.message
     await q_msg.edit_text(f"**Subtitle Merger**\n\n- {query.data}")
@@ -59,13 +59,7 @@ async def process_subtitles(bot, query):
             await q_msg.edit_text(f"srt was not replying to video")
             return
     
-    #if or "video" not in user_files[user_id] or "subtitle" not in user_files[user_id]:
-        #return await query.message.edit_text("Something went wrong. Please restart the process.")
-
     method = query.data
-    #video_path = f".mp4"
-    #sub_path = f"_sub.srt"
-    #output_path = f"{}_output.mp4"
 
     # Download video and subtitle files
     msg = await query.message.edit_text("Downloading files...")
@@ -76,8 +70,10 @@ async def process_subtitles(bot, query):
     video_path = os.path.join(download_path, tgORN)
     sub_f = f"{video_path}_sub.srt"
     sub_path = os.path.join(download_path, sub_f)
+    
     output_path = f"{video_path}_subRvx.mp4"
-
+    if method == "mkv_mux":
+        output_path = f"{video_path}_subRvx.mkv"
     # Initialize progress tracking
     last_update = {"time": 0, "msg": ""}
     # Start downloading the files
@@ -116,6 +112,11 @@ async def process_subtitles(bot, query):
     "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
     "-c:v", "libx264", "-preset", "veryfast", "-crf", "28",  # Increase CRF for faster encoding
     "-c:a", "copy", output_path
+        ]
+    elif method == "mkv_mux":
+        ffmpeg_cmd = [
+    "ffmpeg", "-i", video_path, "-i", sub_path, 
+    "-c", "copy", "-c:s", "srt", output_path
         ]
         
     else:

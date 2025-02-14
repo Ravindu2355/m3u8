@@ -50,18 +50,14 @@ async def process_subtitles(bot, query):
     if not q_msg.reply_to_message or not q_msg.reply_to_message.document:
         return
     doc_msg = q_msg.reply_to_message
-    if not doc_msg.reply_to_message:
+    if not doc_msg.reply_to_message_id:
         await q_msg.edit_text(f"srt was not replying to another")
-        message_json = json.dumps(query.message.__dict__, indent=4, default=str)
-        with open("message.json", "w", encoding="utf-8") as f:
-            f.write(message_json)
-        await q_msg.reply_document("message.json", caption="📄 Full Message Object")
         return
-    if not doc_msg.reply_to_message.video:
-        if not doc_msg.reply_to_message.document or "video" not in doc_msg.reply_to_message.document.mime_type:
+    vid_msg = await bot.get_messages(q_msg.chat.id, doc_msg.reply_to_message_id)
+    if not vid_msg or not vid_msg.video:
+        if not vid_msg.document or "video" not in vid_msg.document.mime_type:
             await q_msg.edit_text(f"srt was not replying to video")
             return
-    vid_msg = doc_msg.reply_to_message
     
     #if or "video" not in user_files[user_id] or "subtitle" not in user_files[user_id]:
         #return await query.message.edit_text("Something went wrong. Please restart the process.")

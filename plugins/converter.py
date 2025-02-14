@@ -4,7 +4,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from Func.simples import mention_user, generate_thumbnail, get_tg_filename
 from Func.m3u8 import download_and_convert_video
-from plugins.subtitles import subtitle_handler
+#from plugins.subtitles import subtitle_handler
 
 # A global dictionary to store messages for handling callbacks
 DOWNLOAD_TASKS = {}
@@ -62,7 +62,23 @@ async def progress_callback(current, total, message: Message, p_title, start_tim
 async def handle_forwarded_file(client, message: Message):
     # Check if it's a document and ensure it is a video file
     if message.document and "video" not in message.document.mime_type:
-        await subtitle_handler(client, message)
+        if not message.reply_to_message or not message.reply_to_message.video:
+           return await message.reply_text("Please send a **video first**, then reply with the subtitle file.")
+
+        file_ext = message.document.file_name.split(".")[-1].lower()
+        if file_ext not in ["srt", "ass"]:
+           await message.reply_text("Only **SRT** or **ASS** subtitle files are supported.")
+           return 
+
+        #user_files[message.from_user.id]["subtitle"] = message.document.file_id
+        await message.reply_text(
+            "**Subtitle Merger**\n\n**Select the subtitle method:**\n\n **Burn-in**:Best method.That subs are pernement part of video.\n **Move_text**:Also working in most of devices but some tvs will not supporting.but faster than burn-in",
+            reply_to_message_id=message.id,
+            reply_markup=InlineKeyboardMarkup([
+               [InlineKeyboardButton("🔥 Burn-in (Hardcoded/Slow)", callback_data="burn")],
+               [InlineKeyboardButton("📝 Move Text (Softcoded/Fast)", callback_data="mov_text")]
+            ])
+        )
         #await message.reply("❌ This document is not a video file.")
         return
     

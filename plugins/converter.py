@@ -4,6 +4,8 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from Func.simples import mention_user, generate_thumbnail, get_tg_filename
 from Func.m3u8 import download_and_convert_video
+from plugins.subtitles import subtitle_handler
+
 # A global dictionary to store messages for handling callbacks
 DOWNLOAD_TASKS = {}
 
@@ -60,7 +62,8 @@ async def progress_callback(current, total, message: Message, p_title, start_tim
 async def handle_forwarded_file(client, message: Message):
     # Check if it's a document and ensure it is a video file
     if message.document and "video" not in message.document.mime_type:
-        await message.reply("❌ This document is not a video file.")
+        await subtitle_handler(client, message)
+        #await message.reply("❌ This document is not a video file.")
         return
     
     # Reply with inline buttons

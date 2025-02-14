@@ -1,4 +1,4 @@
-import os
+import os, json
 import time
 import asyncio
 import subprocess
@@ -40,6 +40,8 @@ async def subtitle_handler(bot, message):
     
 download_path = "./downloads"
 
+
+
 # Handle subtitle merging method
 @Client.on_callback_query(filters.regex(r"burn|mov_text"))
 async def process_subtitles(bot, query):
@@ -50,6 +52,10 @@ async def process_subtitles(bot, query):
     doc_msg = q_msg.reply_to_message
     if not doc_msg.reply_to_message:
         await q_msg.edit_text(f"srt was not replying to another")
+        message_json = json.dumps(query.message.__dict__, indent=4, default=str)
+        with open("message.json", "w", encoding="utf-8") as f:
+            f.write(message_json)
+        await q_msg.reply_document("message.json", caption="📄 Full Message Object")
         return
     if not doc_msg.reply_to_message.video:
         if not doc_msg.reply_to_message.document or "video" not in doc_msg.reply_to_message.document.mime_type:

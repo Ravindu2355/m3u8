@@ -79,6 +79,7 @@ async def handle_forwarded_file(client, message: Message):
                [InlineKeyboardButton("🔥 Burn-in H264-crf23 (Hardcoded/Slow)", callback_data="l264crf23")],
                [InlineKeyboardButton("🔥 Burn-in H264-crf28 (Hardcoded/Slow)", callback_data="l264crf28")],
                [InlineKeyboardButton("📝 Move Text (Softcoded/Fast)", callback_data="mov_text")],
+               [InlineKeyboardButton("📃 MKV Mux (Softcoded/Fast)", callback_data="mkv_mux")],
                [InlineKeyboardButton("❌️**Cancel**", callback_data="cancel")],
             ])
         )

@@ -1,5 +1,5 @@
 import os, json
-import time
+import time, re
 import asyncio
 import subprocess
 from pyrogram import Client, filters
@@ -116,12 +116,12 @@ async def process_subtitles(bot, query):
 
     duration = None
     progress_time = 0
-    #last_update = {"msg": ""}
+    last_update_time = time.time()  # Track last message update time
+    last_msg = ""
     error_log = []
 
     # Progress update loop
     while True:
-        # Read FFmpeg output
         line = await process.stdout.readline()
         if not line:
             break  # FFmpeg has finished
@@ -149,11 +149,13 @@ async def process_subtitles(bot, query):
         if duration:
             percentage = min(int((progress_time / duration) * 100), 100)
             eta = max(int(duration - progress_time), 0)
-            pr_msg = f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec"
+            new_msg = f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec"
 
-            if pr_msg != last_update["msg"]:
-                await msg.edit_text(pr_msg)
-                last_update["msg"] = pr_msg
+            # Only update message every 10 seconds
+            if time.time() - last_update_time >= 10 and new_msg != last_msg:
+                await msg.edit_text(new_msg)
+                last_msg = new_msg
+                last_update_time = time.time()
 
     # Wait for process to finish
     return_code = await process.wait()
@@ -173,3 +175,4 @@ async def process_subtitles(bot, query):
     os.remove(video_path)
     os.remove(sub_path)
     #os.remove(output_path)
+    

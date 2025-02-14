@@ -101,64 +101,56 @@ async def process_subtitles(bot, query):
     if method == "burn":
         ffmpeg_cmd = [
             "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
-            "-c:a", "copy", "-progress", "pipe:1", "-nostats", output_path
+            "-c:a", "copy", output_path
         ]
     else:
         ffmpeg_cmd = [
             "ffmpeg", "-i", video_path, "-i", sub_path,
             "-c:v", "copy", "-c:a", "copy", "-c:s", "mov_text",
-            "-progress", "pipe:1", "-nostats", output_path
+            output_path
         ]
 
-    process = await asyncio.create_subprocess_exec(
-        *ffmpeg_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    # Start FFmpeg process
+    process = subprocess.Popen(ffmpeg_cmd, stderr=subprocess.PIPE, text=True, bufsize=1)
 
     duration = None
-    progress_time = 0
     last_update_time = time.time()
     last_msg = ""
-    error_log = []
 
-    # Progress update loop
-    while True:
-        line = await process.stderr.readline()  # Read from stderr
+    time_regex = re.compile(r"time=(\d+):(\d+):(\d+\.\d+)")
+
+    while process.poll() is None:
+        line = process.stderr.readline()
         if not line:
-            break  # FFmpeg has finished
+            continue
 
-        line = line.decode().strip()
-        error_log.append(line)
-
-        # Extract video duration
+        # Extract duration if not already found
         if duration is None:
             match = re.search(r"Duration: (\d+):(\d+):(\d+\.\d+)", line)
             if match:
                 h, m, s = map(float, match.groups())
                 duration = h * 3600 + m * 60 + s
 
-        # Extract encoding progress
-        match = re.search(r"out_time_ms=(\d+)", line)
-        if match:
-            progress_time = int(match.group(1)) / 1_000_000  # Convert to seconds
+        # Extract progress time
+        match = time_regex.search(line)
+        if match and duration:
+            h, m, s = map(float, match.groups())
+            progress_time = h * 3600 + m * 60 + s
+            progress = (progress_time / duration) * 100
+            progress = min(progress, 100)
 
-        if duration and progress_time:
-            percentage = min(int((progress_time / duration) * 100), 100)
-            eta = max(int(duration - progress_time), 0)
-            new_msg = f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec"
+            if time.time() - last_update_time >= 10:
+                new_msg = f"⏳ **Progress:** `{progress:.2f}%`\n🎥 **FFmpeg is processing...**"
+                if new_msg != last_msg:
+                    await msg.edit_text(new_msg)
+                    last_msg = new_msg
+                    last_update_time = time.time()
 
-            # Update message every 10 seconds
-            if time.time() - last_update_time >= 10 and new_msg != last_msg:
-                await msg.edit_text(new_msg)
-                last_msg = new_msg
-                last_update_time = time.time()
-
-    # Wait for process to finish
-    return_code = await process.wait()
-
-    if return_code != 0:
-        error_message = "\n".join(error_log[-10:])  # Show last 10 error lines
-        await msg.edit_text(f"❌ FFmpeg Error!\n```\n{error_message}\n```", parse_mode="Markdown")
-        return
+    # Check if FFmpeg completed successfully
+    if process.returncode == 0:
+        await msg.edit_text("✅ **Merging complete! Uploading...**")
+    else:
+        await msg.edit_text("❌ **FFmpeg process failed!**")
 
 
     # Send the processed video

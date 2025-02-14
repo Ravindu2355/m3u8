@@ -4,6 +4,9 @@ import asyncio
 import subprocess
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from Func.simples import mention_user, generate_thumbnail, get_tg_filename
+from plugins.converter import progress_callback
+from plugins.live_rec2 import upload_and_start_new_file
 
 # Store user data
 user_files = {}
@@ -17,39 +20,71 @@ user_files = {}
 # Command to handle subtitle files
 @Client.on_message(filters.document & filters.private)
 async def subtitle_handler(bot, message):
-    if message.from_user.id not in user_files or "video" not in user_files[message.from_user.id]:
+    if not message.reply_to_message or not message.reply_to_message.video:
         return await message.reply_text("Please send a **video first**, then reply with the subtitle file.")
 
     file_ext = message.document.file_name.split(".")[-1].lower()
     if file_ext not in ["srt", "ass"]:
-        #await message.reply_text("Only **SRT** or **ASS** subtitle files are supported.")
+        await message.reply_text("Only **SRT** or **ASS** subtitle files are supported.")
         return 
 
-    user_files[message.from_user.id]["subtitle"] = message.document.file_id
+    #user_files[message.from_user.id]["subtitle"] = message.document.file_id
     await message.reply_text(
-        "**Select the subtitle method:**\n\n **Burn-in**:Best method.That subs are pernement part of video.\n **Move_text**:Also working in most of devices but some tvs will not supporting.but faster than burn-in",
+        "**Subtitle Merger**\n\n**Select the subtitle method:**\n\n **Burn-in**:Best method.That subs are pernement part of video.\n **Move_text**:Also working in most of devices but some tvs will not supporting.but faster than burn-in",
+        reply_to_message_id=message.id,
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔥 Burn-in (Hardcoded/Slow)", callback_data="burn")],
             [InlineKeyboardButton("📝 Move Text (Softcoded/Fast)", callback_data="mov_text")]
         ])
     )
-
+    
+download_path = "./downloads"
 # Handle subtitle merging method
-@Client.on_callback_query(filters.regex("burn|mov_text"))
+@Client.on_callback_query(filters.regex("burn|mov_text|cancel"))
 async def process_subtitles(bot, query):
-    user_id = query.from_user.id
-    if user_id not in user_files or "video" not in user_files[user_id] or "subtitle" not in user_files[user_id]:
-        return await query.message.edit_text("Something went wrong. Please restart the process.")
+    q_msg = query.message
+    if not q_msg.reply_to_message or not q_msg.reply_to_message.document:
+        return
+    doc_msg = q_msg.reply_to_message
+    if not doc_msg.reply_to_message or not (doc_msg.reply_to_message.video or (doc_msg.reply_to_message.document and "video" in doc_msg.reply_to_message.document.mime_type)):
+        return
+    vid_msg = doc_msg.reply_to_message
+    
+    #if or "video" not in user_files[user_id] or "subtitle" not in user_files[user_id]:
+        #return await query.message.edit_text("Something went wrong. Please restart the process.")
 
     method = query.data
-    video_path = f"{user_id}_video.mp4"
-    sub_path = f"{user_id}_sub.srt"
-    output_path = f"{user_id}_output.mp4"
+    #video_path = f".mp4"
+    #sub_path = f"_sub.srt"
+    #output_path = f"{}_output.mp4"
 
     # Download video and subtitle files
     msg = await query.message.edit_text("Downloading files...")
-    video = await bot.download_media(user_files[user_id]["video"], file_name=video_path)
-    subtitle = await bot.download_media(user_files[user_id]["subtitle"], file_name=sub_path)
+    #video = await bot.download_media(user_files[user_id]["video"], file_name=video_path)
+    if not os.path.exists(download_path):
+            os.makedirs(download_path)
+    tgORN = await get_tg_filename(original_msg)
+    video_path = os.path.join(download_path, tgORN)
+    sub_f = f"{video_path}_sub.srt"
+    sub_path = os.path.join(download_path, sub_f)
+    output_path = f"{video_path}_subRvx.mp4"
+
+    # Initialize progress tracking
+    last_update = {"time": 0, "msg": ""}
+    # Start downloading the files
+    try:
+        start_time = time.time()
+        video = await vid_msg.download(
+            file_name=video_path,
+            progress=progress_callback,
+            progress_args=(q_msg, "Downloading...", start_time,last_update)
+            )
+        #subtitle = await bot.download_media(user_files[user_id]["subtitle"], file_name=sub_path)
+        subtitle = await doc_msg.download(
+            file_name=sub_path
+        )
+    except Exception as e:
+        await msg.edit_text(f"❌ **Error on Download Files:** \n\n{str(e)}")
 
     await msg.edit_text("Merging subtitles...")
 
@@ -80,15 +115,19 @@ async def process_subtitles(bot, query):
         percentage = min(int((elapsed_time / 60) * 100), 100)
         eta = max(int((60 - elapsed_time)), 0)
 
-        await msg.edit_text(f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec")
+        pr_msg = f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec"
+        if pr_msg != last_update["msg"]:
+           await msg.edit_text(pr_msg)
+           last_update["msg"] = pr_msg
 
     await process.wait()
 
     # Send the processed video
     await msg.edit_text("Uploading new video...")
-    await bot.send_video(user_id, video=output_path, caption="Here is your video with subtitles!")
-
+    #await bot.send_video(user_id, video=output_path, caption="Here is your video with subtitles!")
+    start_time = time.time()
+    await upload_and_start_new_file(bot, msg, output_path, start_time)
     # Cleanup
     os.remove(video_path)
     os.remove(sub_path)
-    os.remove(output_path)
+    #os.remove(output_path)

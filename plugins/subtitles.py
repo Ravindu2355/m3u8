@@ -96,20 +96,20 @@ async def process_subtitles(bot, query):
 
     if method == "burn":
         ffmpeg_cmd = [
-            "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
+            "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname=Noto Sans Sinhala'",
             "-c:a", "copy", output_path
         ]
         
     elif method == "l264crf23":
         ffmpeg_cmd = [
-    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",  
+    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname=Noto Sans Sinhala'",  
     "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",  # Faster encoding
     "-c:a", "copy", output_path
         ]
 
     elif method == "l264crf28":
         ffmpeg_cmd = [
-    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
+    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname=Noto Sans Sinhala'",
     "-c:v", "libx264", "-preset", "veryfast", "-crf", "28",  # Increase CRF for faster encoding
     "-c:a", "copy", output_path
         ]

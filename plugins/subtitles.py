@@ -72,7 +72,7 @@ async def process_subtitles(bot, query):
     #video = await bot.download_media(user_files[user_id]["video"], file_name=video_path)
     if not os.path.exists(download_path):
             os.makedirs(download_path)
-    tgORN = await get_tg_filename(original_msg)
+    tgORN = await get_tg_filename(vid_msg)
     video_path = os.path.join(download_path, tgORN)
     sub_f = f"{video_path}_sub.srt"
     sub_path = os.path.join(download_path, sub_f)

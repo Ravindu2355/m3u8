@@ -101,13 +101,13 @@ async def process_subtitles(bot, query):
     if method == "burn":
         ffmpeg_cmd = [
             "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}",
-            "-c:a", "copy", output_path, "-progress", "pipe:1", "-nostats"
+            "-c:a", "copy", "-progress", "pipe:1", "-nostats", output_path
         ]
     else:
         ffmpeg_cmd = [
             "ffmpeg", "-i", video_path, "-i", sub_path,
             "-c:v", "copy", "-c:a", "copy", "-c:s", "mov_text",
-            output_path, "-progress", "pipe:1", "-nostats"
+            "-progress", "pipe:1", "-nostats", output_path
         ]
 
     process = await asyncio.create_subprocess_exec(
@@ -116,23 +116,18 @@ async def process_subtitles(bot, query):
 
     duration = None
     progress_time = 0
-    last_update_time = time.time()  # Track last message update time
+    last_update_time = time.time()
     last_msg = ""
     error_log = []
 
     # Progress update loop
     while True:
-        line = await process.stdout.readline()
+        line = await process.stderr.readline()  # Read from stderr
         if not line:
             break  # FFmpeg has finished
 
         line = line.decode().strip()
-
-        # Capture FFmpeg errors
-        err_line = await process.stderr.readline()
-        if err_line:
-            err_line = err_line.decode().strip()
-            error_log.append(err_line)
+        error_log.append(line)
 
         # Extract video duration
         if duration is None:
@@ -146,12 +141,12 @@ async def process_subtitles(bot, query):
         if match:
             progress_time = int(match.group(1)) / 1_000_000  # Convert to seconds
 
-        if duration:
+        if duration and progress_time:
             percentage = min(int((progress_time / duration) * 100), 100)
             eta = max(int(duration - progress_time), 0)
             new_msg = f"⏳ Progress: {percentage}%\n⏱ ETA: {eta} sec"
 
-            # Only update message every 10 seconds
+            # Update message every 10 seconds
             if time.time() - last_update_time >= 10 and new_msg != last_msg:
                 await msg.edit_text(new_msg)
                 last_msg = new_msg

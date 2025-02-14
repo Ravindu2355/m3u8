@@ -52,7 +52,7 @@ async def process_subtitles(bot, query):
         await q_msg.edit_text(f"srt was not replying to another")
         return
     if not doc_msg.reply_to_message.video:
-        if doc_msg.reply_to_message.document and "video" not in doc_msg.reply_to_message.document.mime_type:
+        if not doc_msg.reply_to_message.document or "video" not in doc_msg.reply_to_message.document.mime_type:
             await q_msg.edit_text(f"srt was not replying to video")
             return
     vid_msg = doc_msg.reply_to_message

@@ -6,17 +6,22 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . .
 
-# Install ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg && apt-get clean
-#RUN apt -qq update && apt -qq install -y git python3 python3-pip ffmpeg
+# Install FFmpeg and Sinhala fonts
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    fonts-noto \
+    fonts-noto-cjk \
+    fonts-noto-color-emoji \
+    ttf-mscorefonts-installer \
+    fontconfig \
+    && apt-get clean
+
+# Verify font installation
+RUN fc-list | grep Sinhala || echo "No Sinhala fonts found"
 
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Expose the port the app runs on (not strictly necessary for a Telegram bot)
-#EXPOSE 8000
-
 # Run the bot when the container launches
 CMD gunicorn --bind 0.0.0.0:8000 app:app & python3 bot.py
-#CMD python3 bot.py

@@ -30,7 +30,7 @@ async def handle_link(client, message):
     if tera_link:
       surl = extract_terabox_surl(tera_link)
       if surl:
-         wdt = await extera_wd(tera_link, message)
+         wdt = await extera_wd(tera_link, rmsg)
          if wdt["status"] == "ok":
            data = wdt["data"]
            prm = f"🟢Extracted\n  Name : {data['Title']}\nSize : {data['Size']}\nUrl : {data['Direct Download Link']}\n"

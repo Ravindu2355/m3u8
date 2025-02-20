@@ -10,6 +10,7 @@ import aiohttp
 
 
 async def extract_tera(str, msg: Message):
+    await msg.edit_text("**🟢Trying M3U8 360p getting!...**")
     if not str:
         return None
 

@@ -34,14 +34,14 @@ async def handle_link(client, message):
          if wdt["status"] == "ok":
            data = wdt["data"]["📜 Extracted Info"][0]
            prm = f"🟢Extracted\n  Name : {data['📂 Title']}\nSize : {data['📏 Size']}\nUrl : {data['🔽 Direct Download Link']}\n"
-           await rmsg.reply(prm)
+           prmr = await rmsg.reply(prm)
            dlj = await dl(data["🔽 Direct Download Link"], rmsg)
            if not "error" in dlj:
              up = await upload_file(client, message.chat.id, dlj['file_path'], rmsg)
            else:
              dl_link = await extract_tera(surl, rmsg)
              if dl_link:
-               await prm.delete()
+               await prmr.delete()
                message.text = f"/m3u8 {dl_link}"
                await dl_m3u8(client,message)
          else:

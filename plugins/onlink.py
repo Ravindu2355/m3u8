@@ -32,8 +32,8 @@ async def handle_link(client, message):
       if surl:
          wdt = await extera_wd(tera_link, rmsg)
          if wdt["status"] == "ok":
-           data = wdt["data"]
-           prm = f"🟢Extracted\n  Name : {data['Title']}\nSize : {data['Size']}\nUrl : {data['Direct Download Link']}\n"
+           data = wdt["data"]["📜 Extracted Info"][0]
+           prm = f"🟢Extracted\n  Name : {data["📂 Title"]}\nSize : {data["📏 Size"]}\nUrl : {data["🔽 Direct Download Link"]}\n"
            await rmsg.reply(prm)
            dlj = await dl(data['Direct Download Link'], rmsg)
            if not "error" in dlj:

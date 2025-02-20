@@ -8,6 +8,23 @@ import requests
 from config import Config
 import aiohttp
 
+async def extra_wd(url):
+    api_url = f"https://wdzone-terabox-api.vercel.app/api?url={url}"
+    
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(api_url) as response:
+                response.raise_for_status()  # Raise an error for HTTP errors
+                data = await response.json()
+                
+                if "✅ Status" in data and data["✅ Status"] == "Success":
+                    return {"status": "success", "data": data}
+                else:
+                    return {"status": "error", "message": "Extraction failed"}
+
+        except aiohttp.ClientError as e:
+            return {"status": "error", "message": str(e)}
+
 
 async def extract_tera(str, msg: Message):
     await msg.edit_text("**🟢Trying M3U8 360p getting!...**")

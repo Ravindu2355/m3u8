@@ -5,7 +5,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from Func.simples import mention_user, generate_thumbnail, get_tg_filename, teralinks_ex, extract_terabox_surl
 from Func.m3u8 import download_and_convert_video
 from plugins.authers import is_authorized
-from plugins.tera import extract_tera
+from plugins.tera import extract_tera, extera_wd
 from plugins.m3u8_handle import dl_m3u8
 
 @Client.on_message(filters.regex(r'https?://[^\s]+'))
@@ -28,10 +28,14 @@ async def handle_link(client, message):
     if tera_link:
       surl = extract_terabox_surl(tera_link)
       if surl:
-         dl_link = await extract_tera(surl, message)
-         if dl_link:
-             message.text = f"/m3u8 {dl_link}"
-             await dl_m3u8(client,message)
+         wdt = await extera_wd(tera_link, message)
+         if wdt["status"] == "ok":
+           
+         else:
+           dl_link = await extract_tera(surl, message)
+           if dl_link:
+               message.text = f"/m3u8 {dl_link}"
+               await dl_m3u8(client,message)
       else:
         await rmsg.edit_text(f"🤕** Sorry! cant get surl from {tera_link}")
     else:

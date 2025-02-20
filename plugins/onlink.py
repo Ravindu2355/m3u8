@@ -33,9 +33,9 @@ async def handle_link(client, message):
          wdt = await extera_wd(tera_link, rmsg)
          if wdt["status"] == "ok":
            data = wdt["data"]["📜 Extracted Info"][0]
-           prm = f"🟢Extracted\n  Name : {data["📂 Title"]}\nSize : {data["📏 Size"]}\nUrl : {data["🔽 Direct Download Link"]}\n"
+           prm = f"🟢Extracted\n  Name : {data['📂 Title']}\nSize : {data['📏 Size']}\nUrl : {data['🔽 Direct Download Link']}\n"
            await rmsg.reply(prm)
-           dlj = await dl(data['Direct Download Link'], rmsg)
+           dlj = await dl(data["🔽 Direct Download Link"], rmsg)
            if not "error" in dlj:
              up = await upload_file(client, message.chat.id, dlj['file_path'], rmsg)
            else:

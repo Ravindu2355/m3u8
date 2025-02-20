@@ -7,6 +7,8 @@ from Func.m3u8 import download_and_convert_video
 from plugins.authers import is_authorized
 from plugins.tera import extract_tera, extera_wd
 from plugins.m3u8_handle import dl_m3u8
+from Func.downloader import dl
+from plugins.tgup import upload_file
 
 @Client.on_message(filters.regex(r'https?://[^\s]+'))
 async def handle_link(client, message):
@@ -30,7 +32,17 @@ async def handle_link(client, message):
       if surl:
          wdt = await extera_wd(tera_link, message)
          if wdt["status"] == "ok":
-           
+           data = wdt["data"]
+           prm = f"🟢Extracted\n  Name : {data['Title']}\nSize : {data['Size']}\nUrl : {data['Direct Download Link']}\n"
+           await rmsg.reply(prm)
+           dlj = await dl(data['Direct Download Link'], rmsg)
+           if not "error" in dlj:
+             up = await upload_file(client, message.chat.id, dlj['file_path'], rmsg)
+           else:
+             dl_link = await extract_tera(surl, message)
+             if dl_link:
+               message.text = f"/m3u8 {dl_link}"
+               await dl_m3u8(client,message)
          else:
            dl_link = await extract_tera(surl, message)
            if dl_link:

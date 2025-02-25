@@ -10,10 +10,12 @@ COPY . .
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     fonts-noto \
+    fonts-noto-sinhala \
+    fonts-lklug-sinhala \
+    fontconfig \
     fonts-noto-cjk \
     fonts-noto-color-emoji \
     fonts-noto-core \
-    fontconfig \
     && apt-get clean
 
 # Install Python dependencies

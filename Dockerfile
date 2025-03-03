@@ -11,13 +11,13 @@ COPY . .
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     fonts-noto \
-    fonts-noto-sinhala \
+    #fonts-noto-sinhala \
     fonts-lklug-sinhala \
     fontconfig \
     fonts-noto-cjk \
     fonts-noto-color-emoji \
     fonts-noto-core \
-    libreoffice-silgraphite \
+    #libreoffice-silgraphite \
     && apt-get clean 
 
 # Install Python dependencies

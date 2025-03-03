@@ -6,8 +6,9 @@ WORKDIR /app
 # Copy files into container
 COPY . .
 
+
 # Install FFmpeg and Sinhala fonts
-RUN apt-get update && apt-get upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apt-get update && apt-get install -y \
     ffmpeg \
     fonts-noto \
     fonts-noto-sinhala \
@@ -17,7 +18,7 @@ RUN apt-get update && apt-get upgrade -y && DEBIAN_FRONTEND=noninteractive apt-g
     fonts-noto-color-emoji \
     fonts-noto-core \
     libreoffice-silgraphite \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean 
 
 # Install Python dependencies
 COPY requirements.txt .

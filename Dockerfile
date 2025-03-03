@@ -3,11 +3,11 @@ FROM python:3.10
 # Set working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container
+# Copy files into container
 COPY . .
 
-# Install FFmpeg and necessary fonts for Sinhala subtitles
-RUN apt-get update && apt-get install -y \
+# Install FFmpeg and Sinhala fonts
+RUN apt-get update && apt-get upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     ffmpeg \
     fonts-noto \
     fonts-noto-sinhala \
@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y \
     fonts-noto-cjk \
     fonts-noto-color-emoji \
     fonts-noto-core \
-    && apt-get clean
+    libreoffice-silgraphite \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .

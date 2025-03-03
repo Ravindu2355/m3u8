@@ -9,6 +9,9 @@ from Func.m3u8 import download_and_convert_video
 # A global dictionary to store messages for handling callbacks
 DOWNLOAD_TASKS = {}
 
+def has_valid_extension(filename: str) -> bool:
+    parts = filename.rsplit('.', 1)  # Split at the last dot
+    return len(parts) == 2 and len(parts[1]) <= 5  # Typical extensions are 1-5 chars long
 
 def changeFileExt(filename: str, new_extension: str) -> str:
     
@@ -61,7 +64,7 @@ async def progress_callback(current, total, message: Message, p_title, start_tim
 @Client.on_message(filters.video | filters.document)
 async def handle_forwarded_file(client, message: Message):
     # Check if it's a document and ensure it is a video file
-    if message.document and "video" not in message.document.mime_type:
+    if message.document and ("video" not in message.document.mime_type and has_valid_extension(message.document.file_name)):
         if not message.reply_to_message or not message.reply_to_message.video:
            return await message.reply_text("Please send a **video first**, then reply with the subtitle file.")
 
@@ -147,7 +150,10 @@ async def handle_button_click_convert(client, query: CallbackQuery):
                 await q_msg.edit_text(f"✅ **File downloaded successfully!**\n**Path:** `{downloaded_file_path}`")
                 print(f"File saved to: {downloaded_file_path}")
                 start_time = time.time()
-                output_file = changeFileExt(tgORN,converting_type) #f"output.{converting_type}"
+                if has_valid_extension(tgORN):
+                    output_file = changeFileExt(tgORN, converting_type) #f"output.{converting_type}"
+                else:
+                    output_file = f"{tgORN}.{converting_type}"
                 thumb_file = "thumb.jpg"
 
                 duration = await download_and_convert_video(q_msg, downloaded_file_path, output_file)

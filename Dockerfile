@@ -9,20 +9,25 @@ COPY . .
 # Install FFmpeg and Sinhala fonts
 RUN apt-get update && apt-get install -y \
     ffmpeg \
-    fonts-noto \
-    fonts-lklug-sinhala \
+    #fonts-noto \
+    #fonts-lklug-sinhala \
     fontconfig \
-    fonts-noto-cjk \
-    fonts-noto-color-emoji \
-    fonts-noto-core \
+    #fonts-noto-cjk \
+    #fonts-noto-color-emoji \
+    #fonts-noto-core \
     && apt-get clean
 
 # Copy Iskoola Pota font into fonts directory
-RUN mkdir -p /usr/share/fonts/truetype/iskoola
-COPY iskpota.ttf /usr/share/fonts/truetype/iskoola/
+#RUN mkdir -p /usr/share/fonts/truetype/iskoola
+#COPY iskpota.ttf /usr/share/fonts/truetype/iskoola/
+# Create a directory to store fonts
+RUN mkdir -p /usr/share/fonts/truetype/sinhala
+
+# Copy the fonts into the Docker container
+COPY ./fonts /usr/share/fonts/truetype/sinhala
 
 # Rebuild font cache
-RUN fc-cache -f -v
+RUN fc-cache -fv
 
 # Install Python dependencies
 COPY requirements.txt .

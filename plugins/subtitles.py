@@ -7,7 +7,14 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from Func.simples import mention_user, generate_thumbnail, get_tg_filename
 from plugins.converter import progress_callback
 from plugins.live_rec2 import upload_and_start_new_file
+from config import Config
 
+subFonts = {
+    "defalt":"Noto Sans Sinhala",
+    "iskolaP":"Iskoola Pota"
+}
+
+subText = subFonts[Config.Sub]
 # Store user data
 user_files = {}
 
@@ -96,23 +103,24 @@ async def process_subtitles(bot, query):
 
     if method == "burn":
         ffmpeg_cmd = [
-            "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname=Noto Sans Sinhala'",
+            "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname={subText}'",
             "-c:a", "copy", output_path
         ]
         
     elif method == "l264crf23":
         ffmpeg_cmd = [
-    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname=Noto Sans Sinhala'",  
+    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname={subText}'",  
     "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",  # Faster encoding
     "-c:a", "copy", output_path
         ]
 
     elif method == "l264crf28":
         ffmpeg_cmd = [
-    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname=Noto Sans Sinhala'",
+    "ffmpeg", "-i", video_path, "-vf", f"subtitles={sub_path}:force_style='Fontname={subText}'",
     "-c:v", "libx264", "-preset", "veryfast", "-crf", "28",  # Increase CRF for faster encoding
     "-c:a", "copy", output_path
         ]
+        
     elif method == "mkv_mux":
         ffmpeg_cmd = [
     "ffmpeg", "-i", video_path, "-i", sub_path, 

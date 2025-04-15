@@ -27,6 +27,8 @@ async def dl_m3u8(client,message:Message):
         args = message.text.split(" ", 1)
         if not is_authorized(message.chat.id):
             await message.reply("**❌️You are not my auther for use me!...❌️**")
+            if m3u8Status >= 1:
+                m3u8Status -= 1
             return
         if len(args) < 2:
             await message.reply("Please provide an m3u8 URL. Example: `/m3u8 m3u8url`")
@@ -47,6 +49,8 @@ async def dl_m3u8(client,message:Message):
 
         if not os.path.exists(output_file):
             await msg.edit_text("❌ Failed to download or convert the video.")
+            if m3u8Status >= 1:
+                m3u8Status -= 1
             return
 
         # Generate thumbnail

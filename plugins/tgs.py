@@ -12,15 +12,22 @@ user_states = {}
 
 # Function to convert .tgs (Lottie) to gif/webm/mp4
 def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
+def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
     animation = parse_tgs(tgs_path)
-    duration_frames = int((animation.op - animation.ip) * (fps / animation.fr))  # total frames
+    anim_data = animation.animation  # Access internal data
+
+    ip = anim_data.ip  # in frame
+    op = anim_data.op  # out frame
+    fr = anim_data.fr  # frame rate in the animation metadata
+
+    duration_frames = int((op - ip) * (fps / fr))  # total output frames
 
     frames = []
     for frame_num in range(duration_frames):
-        time = animation.ip + (frame_num / fps) * animation.fr
+        time = ip + (frame_num / fps) * fr
         img = animation.render_frame(time)
         img = img.convert("RGBA").resize((width, height), Image.ANTIALIAS)
-        frames.append(np.array(img))  # for imageio
+        frames.append(np.array(img))
 
     if output_format == "gif":
         imageio.mimsave(output_path, frames, format="GIF", duration=1 / fps)
@@ -30,7 +37,7 @@ def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, h
         for frame in frames:
             writer.append_data(frame)
         writer.close()
-
+        
 # Handle incoming .tgs file or animated sticker
 @Client.on_message(filters.private & (filters.sticker | filters.document))
 async def handle_tgs_input(client: Client, message: Message):

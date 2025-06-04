@@ -3,37 +3,38 @@ import tempfile
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from PIL import Image
+import numpy as np
 import imageio
 from lottie.parsers.tgs import parse_tgs
-from lottie import export
 
-# Store user choices temporarily
+# Temporary user session store
 user_states = {}
 
+# Function to convert .tgs (Lottie) to gif/webm/mp4
 def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
     animation = parse_tgs(tgs_path)
-    total_frames = animation.op  # total frames
+    duration_frames = int((animation.op - animation.ip) * (fps / animation.fr))  # total frames
 
     frames = []
-    for frame_num in range(total_frames):
-        # Render frame to PIL image
-        img = export.render_frame(animation, frame_num)
+    for frame_num in range(duration_frames):
+        time = animation.ip + (frame_num / fps) * animation.fr
+        img = animation.render_frame(time)
         img = img.convert("RGBA").resize((width, height), Image.ANTIALIAS)
-        frames.append(img)
+        frames.append(np.array(img))  # for imageio
 
     if output_format == "gif":
-        frames[0].save(output_path, save_all=True, append_images=frames[1:], duration=1000/fps, loop=0)
+        imageio.mimsave(output_path, frames, format="GIF", duration=1 / fps)
     else:
         codec = "libvpx-vp9" if output_format == "webm" else "libx264"
         writer = imageio.get_writer(output_path, fps=fps, codec=codec)
-        for img in frames:
-            writer.append_data(imageio.imread(img))
+        for frame in frames:
+            writer.append_data(frame)
         writer.close()
 
+# Handle incoming .tgs file or animated sticker
 @Client.on_message(filters.private & (filters.sticker | filters.document))
 async def handle_tgs_input(client: Client, message: Message):
     tgs = None
-    # Accept animated .tgs file sent as document OR animated sticker
     if message.document and message.document.file_name.endswith(".tgs"):
         tgs = message.document
     elif message.sticker and message.sticker.is_animated:
@@ -90,7 +91,7 @@ async def choose_fps_and_render(client: Client, query: CallbackQuery):
     fmt = state["format"]
     res = state["size"]
 
-    await query.message.edit_text("🛠 Rendering... This might take a few seconds.")
+    await query.message.edit_text("🛠 Rendering... Please wait.")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tgs_path = os.path.join(tmpdir, "input.tgs")
@@ -107,4 +108,4 @@ async def choose_fps_and_render(client: Client, query: CallbackQuery):
                 await query.message.reply_video(output_path, caption=caption)
             await query.message.delete()
         except Exception as e:
-            await query.message.edit_text(f"❌ Conversion failed: {e}")
+            await query.message.edit_text(f"❌ Conversion failed:\n`{e}`")

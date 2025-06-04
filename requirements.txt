@@ -10,12 +10,11 @@ flask_cors
 aiohttp
 moviepy==1.0.3
 psutil
-flask_cors
 Pillow>=5.3.0
 beautifulsoup4
 humanize==3.13.1
 tqdm==4.62.3
 ffmpeg-python
-pillow
 imageio
 lottie[render]
+rlottie

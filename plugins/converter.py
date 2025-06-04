@@ -60,11 +60,20 @@ async def progress_callback(current, total, message: Message, p_title, start_tim
         except Exception as e:
             print(f"Error updating progress: {e}")
 
+def is_video_file(filename: str) -> bool:
+    video_extensions = {
+        "mp4", "webm", "mkv", "mov", "avi", "flv", "wmv",
+        "hevc", "av1", "prores", "mxf", "braw",
+        "ogv", "3gp", "mts", "ts", "m4v"
+    }
+    ext = filename.lower().split('.')[-1]
+    return ext in video_extensions
+    
 # Command handler: Listen for forwarded video or video documents
 @Client.on_message(filters.video | filters.document)
 async def handle_forwarded_file(client, message: Message):
     # Check if it's a document and ensure it is a video file
-    if message.document and ("video" not in message.document.mime_type and has_valid_extension(message.document.file_name)):
+    if message.document and ((not is_video_file(message.document.file_name) and "video" not in message.document.mime_type) and has_valid_extension(message.document.file_name)):
         if not message.reply_to_message or not message.reply_to_message.video:
            return await message.reply_text("Please send a **video first**, then reply with the subtitle file.")
 

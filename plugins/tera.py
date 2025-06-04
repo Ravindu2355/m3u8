@@ -20,6 +20,8 @@ async def extera_wd(url, msg):
                 
                 if "✅ Status" in data and data["✅ Status"] == "Success" and data["📄 Extracted Info"]:
                     return {"status": "ok", "data": data}
+                elif "✅ Status" in data and data["✅ Status"] == "Success" and data["📜 Extracted Info"]:
+                    return {"status": "ok", "data": data}
                 else:
                     await msg.edit_text("**🔴Extraction failed**")
                     return {"status": "error", "msg": "Extraction failed"}

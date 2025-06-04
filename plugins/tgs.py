@@ -12,7 +12,6 @@ user_states = {}
 
 # Function to convert .tgs (Lottie) to gif/webm/mp4
 def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
-def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
     animation = parse_tgs(tgs_path)
     anim_data = animation.animation  # Access internal data
 

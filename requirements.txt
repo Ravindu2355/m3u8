@@ -16,4 +16,4 @@ humanize==3.13.1
 tqdm==4.62.3
 ffmpeg-python
 imageio
-lottie-python
+git+https://github.com/airbnb/lottie-python.git

@@ -4,27 +4,28 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from PIL import Image
 import imageio
-from lottie.parsers.tgs import parse_tgs
-from lottie.utils.render import render_animation
+import rlottie
 
 # Store user choices temporarily
 user_states = {}
 
+def render_animation(animation, t, width, height):
+    frame_num = int(t * animation.totalFrame())
+    surface = rlottie.Surface(width, height)
+    animation.render(frame_num, surface.buffer, width, height, width * 4)
+    img = Image.frombytes("RGBA", (width, height), bytes(surface.buffer))
+    return img
 
 def convert_tgs(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
     assert output_format in ["gif", "webm", "mp4"], "Output must be gif, webm, or mp4"
 
-    with open(tgs_path, "rb") as f:
-        animation = parse_tgs(f)
-
-    duration = animation.duration
-    total_frames = int(duration * fps)
+    animation = rlottie.Animation.from_file(tgs_path)
+    total_frames = animation.totalFrame()
 
     frames = []
     with tempfile.TemporaryDirectory() as tmpdir:
         for i in range(total_frames):
-            t = i / total_frames
-            img = render_animation(animation, t, width, height).convert("RGBA")
+            img = render_animation(animation, i / total_frames, width, height).convert("RGBA")
             frame_path = os.path.join(tmpdir, f"frame_{i:04d}.png")
             img.save(frame_path)
             frames.append(frame_path)
@@ -39,10 +40,10 @@ def convert_tgs(tgs_path, output_path, output_format="webm", width=512, height=5
                 writer.append_data(imageio.imread(frame))
             writer.close()
 
-
-@Client.on_message(filters.private & (filters.sticker))
+@Client.on_message(filters.private & filters.sticker)
 async def handle_tgs_input(client: Client, message: Message):
     tgs = None
+    # Accept animated .tgs file sent as document OR animated sticker
     if message.document and message.document.file_name.endswith(".tgs"):
         tgs = message.document
     elif message.sticker and message.sticker.is_animated:
@@ -61,7 +62,6 @@ async def handle_tgs_input(client: Client, message: Message):
         ])
     )
 
-
 @Client.on_callback_query(filters.regex(r"^fmt_"))
 async def choose_format(client: Client, query: CallbackQuery):
     fmt = query.data.split("_")[1]
@@ -75,7 +75,6 @@ async def choose_format(client: Client, query: CallbackQuery):
         ])
     )
 
-
 @Client.on_callback_query(filters.regex(r"^res_"))
 async def choose_resolution(client: Client, query: CallbackQuery):
     res = int(query.data.split("_")[1])
@@ -88,7 +87,6 @@ async def choose_resolution(client: Client, query: CallbackQuery):
              InlineKeyboardButton("60 FPS", callback_data="fps_60")]
         ])
     )
-
 
 @Client.on_callback_query(filters.regex(r"^fps_"))
 async def choose_fps_and_render(client: Client, query: CallbackQuery):

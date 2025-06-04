@@ -11,8 +11,9 @@ from lottie.parsers.tgs import parse_tgs
 user_states = {}
 
 # Function to convert .tgs (Lottie) to gif/webm/mp4
-def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
+async def convert_tgs_lottie(msg, tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
     animation = parse_tgs(tgs_path)
+    await msg.reply(f'data : \n{animation}');
     anim_data = animation.animation  # Access internal data
 
     ip = anim_data.ip  # in frame
@@ -106,7 +107,7 @@ async def choose_fps_and_render(client: Client, query: CallbackQuery):
         await client.download_media(tgs_file, file_name=tgs_path)
 
         try:
-            convert_tgs_lottie(tgs_path, output_path, output_format=fmt, width=res, height=res, fps=fps)
+            await convert_tgs_lottie(query.message, tgs_path, output_path, output_format=fmt, width=res, height=res, fps=fps)
             caption = f"✅ Converted to `{fmt.upper()}` | {res}px @ {fps}fps"
             if fmt == "gif":
                 await query.message.reply_document(output_path, caption=caption)

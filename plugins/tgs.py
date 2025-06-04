@@ -4,43 +4,33 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from PIL import Image
 import imageio
-import rlottie
+from lottie.parsers.tgs import parse_tgs
+from lottie import export
 
 # Store user choices temporarily
 user_states = {}
 
-def render_animation(animation, t, width, height):
-    frame_num = int(t * animation.totalFrame())
-    surface = rlottie.Surface(width, height)
-    animation.render(frame_num, surface.buffer, width, height, width * 4)
-    img = Image.frombytes("RGBA", (width, height), bytes(surface.buffer))
-    return img
-
-def convert_tgs(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
-    assert output_format in ["gif", "webm", "mp4"], "Output must be gif, webm, or mp4"
-
-    animation = rlottie.Animation.from_file(tgs_path)
-    total_frames = animation.totalFrame()
+def convert_tgs_lottie(tgs_path, output_path, output_format="webm", width=512, height=512, fps=30):
+    animation = parse_tgs(tgs_path)
+    total_frames = animation.op  # total frames
 
     frames = []
-    with tempfile.TemporaryDirectory() as tmpdir:
-        for i in range(total_frames):
-            img = render_animation(animation, i / total_frames, width, height).convert("RGBA")
-            frame_path = os.path.join(tmpdir, f"frame_{i:04d}.png")
-            img.save(frame_path)
-            frames.append(frame_path)
+    for frame_num in range(total_frames):
+        # Render frame to PIL image
+        img = export.render_frame(animation, frame_num)
+        img = img.convert("RGBA").resize((width, height), Image.ANTIALIAS)
+        frames.append(img)
 
-        if output_format == "gif":
-            images = [Image.open(f) for f in frames]
-            images[0].save(output_path, save_all=True, append_images=images[1:], duration=1000/fps, loop=0)
-        else:
-            codec = "libvpx-vp9" if output_format == "webm" else "libx264"
-            writer = imageio.get_writer(output_path, fps=fps, codec=codec)
-            for frame in frames:
-                writer.append_data(imageio.imread(frame))
-            writer.close()
+    if output_format == "gif":
+        frames[0].save(output_path, save_all=True, append_images=frames[1:], duration=1000/fps, loop=0)
+    else:
+        codec = "libvpx-vp9" if output_format == "webm" else "libx264"
+        writer = imageio.get_writer(output_path, fps=fps, codec=codec)
+        for img in frames:
+            writer.append_data(imageio.imread(img))
+        writer.close()
 
-@Client.on_message(filters.private & filters.sticker)
+@Client.on_message(filters.private & (filters.sticker | filters.document))
 async def handle_tgs_input(client: Client, message: Message):
     tgs = None
     # Accept animated .tgs file sent as document OR animated sticker
@@ -109,7 +99,7 @@ async def choose_fps_and_render(client: Client, query: CallbackQuery):
         await client.download_media(tgs_file, file_name=tgs_path)
 
         try:
-            convert_tgs(tgs_path, output_path, output_format=fmt, width=res, height=res, fps=fps)
+            convert_tgs_lottie(tgs_path, output_path, output_format=fmt, width=res, height=res, fps=fps)
             caption = f"✅ Converted to `{fmt.upper()}` | {res}px @ {fps}fps"
             if fmt == "gif":
                 await query.message.reply_document(output_path, caption=caption)

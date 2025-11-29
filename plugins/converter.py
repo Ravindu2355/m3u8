@@ -2,7 +2,7 @@ import os, asyncio
 import time
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from Func.simples import mention_user, generate_thumbnail, get_tg_filename
+from Func.simples import mention_user, generate_thumbnail, get_tg_filename, get_media_duration
 from Func.m3u8 import download_and_convert_video
 #from plugins.subtitles import subtitle_handler
 
@@ -166,9 +166,13 @@ async def handle_button_click_convert(client, query: CallbackQuery):
                 thumb_file = "thumb.jpg"
 
                 duration = await download_and_convert_video(q_msg, downloaded_file_path, output_file)
+                if not duration:
+                    duration = get_media_duration(output_file)
+                if not duration:
+                    #await q_msg.edit_text("⛔️ cannot find duration")
 
                 if not os.path.exists(output_file):
-                    await q_msg.edit_text("❌ Failed to download or convert the video.")
+                    await q_msg.edit_text("❌ Failed to download or convert the video. after the convert not output file...")
                     return
 
                 # Generate thumbnail

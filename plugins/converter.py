@@ -168,9 +168,8 @@ async def handle_button_click_convert(client, query: CallbackQuery):
                 duration = await download_and_convert_video(q_msg, downloaded_file_path, output_file)
                 if not duration:
                     duration = get_media_duration(output_file)
-                if not duration:
+                #if not duration:
                     #await q_msg.edit_text("⛔️ cannot find duration")
-
                 if not os.path.exists(output_file):
                     await q_msg.edit_text("❌ Failed to download or convert the video. after the convert not output file...")
                     return

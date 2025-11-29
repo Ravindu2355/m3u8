@@ -74,5 +74,5 @@ async def download_and_convert_video(message: Message, m3u8_url, output_file):
         await message.edit_text("✅ **Download and conversion complete! Uploading...**")
     else:
         await message.edit_text("❌ **FFmpeg process failed!**")
-    return duration
+    return int(duration)
         

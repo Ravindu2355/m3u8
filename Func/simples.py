@@ -7,6 +7,37 @@ from pyrogram.types import Message
 from config import Config
 from globals import AuthU
 import urllib.parse
+import json
+
+def get_media_duration(file_path: str) -> int:
+    """
+    Returns duration in seconds (int) for any video/audio file using ffprobe.
+    Works for mp4, mkv, mov, mp3, m4a, webm, etc.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v", "quiet",
+                "-print_format", "json",
+                "-show_format",
+                file_path
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        data = json.loads(result.stdout)
+
+        # If duration exists in metadata
+        if "format" in data and "duration" in data["format"]:
+            return int(float(data["format"]["duration"]))
+
+        return 0  # fallback
+
+    except Exception:
+        return 0
 
 def url_decode(encoded_string):
     return urllib.parse.unquote(encoded_string)

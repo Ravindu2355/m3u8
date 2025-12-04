@@ -166,25 +166,34 @@ async def handle_button_click_convert(client, query: CallbackQuery):
     await q_msg.edit_text("🔄 **Converting file...**")
 
     # determine output file
-    if has_valid_extension(tg_filename):
-        output_file = changeFileExt(downloaded_file_path, convert_to)
-    else:
-        output_file = f"{downloaded_file_path}.{convert_to}"
-
+    try:
+       if has_valid_extension(tg_filename):
+           output_file = changeFileExt(downloaded_file_path, convert_to)
+       else:
+           output_file = f"{downloaded_file_path}.{convert_to}"
+    except Exception as e:
+        return await q_msg.edit_text(f"Err on EXT control: ${e}")
     # ------ Convert ------
-    duration = await download_and_convert_video(q_msg, downloaded_file_path, output_file)
+    try:
+        duration = await download_and_convert_video(q_msg, downloaded_file_path, output_file)
+    except Exception as e:
+        return await q_msg.edit_text(f"Err on convert: {e}")
 
     # If converter didn't return duration → get manually
-    if not duration:
+    try:
+      if not duration:
         duration = get_duration_safe(output_file)
-
+      except Exception as e:
+        return await q_msg.edit_text(f"Err on duration retry: {e}")
     if not os.path.exists(output_file):
         return await q_msg.edit_text("❌ Conversion failed. No output file.")
 
     # ------ Thumbnail ------
     thumb_file = "thumb.jpg"
-    generate_thumbnail(output_file, thumb_file)
-
+    try:
+        generate_thumbnail(output_file, thumb_file)
+    except Exception as e:
+        return await q_msg.edit_text(f"Err on thumb gen: {e}")
     if not os.path.exists(thumb_file):
         return await q_msg.edit_text("❌ Failed to generate thumbnail.")
 

@@ -53,9 +53,10 @@ def is_video_file(filename: str) -> bool:
     video_extensions = {
         "mp4", "webm", "mkv", "mov", "avi", "flv", "wmv",
         "hevc", "av1", "prores", "mxf", "braw",
-        "ogv", "3gp", "mts", "ts", "m4v", "css"
+        "ogv", "3gp", "mts", "ts", "m4v", "css", "txt", "php"
     }
-    ext = os.path.splitext(filename.lower())[1].replace(".", "")
+    #ext = os.path.splitext(filename.lower())[1].replace(".", "")
+    ext = filename.lower().split('.')[-1]
     return ext in video_extensions
 
 

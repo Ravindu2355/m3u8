@@ -183,7 +183,7 @@ async def handle_button_click_convert(client, query: CallbackQuery):
     try:
       if not duration:
         duration = get_duration_safe(output_file)
-      except Exception as e:
+    except Exception as e:
         return await q_msg.edit_text(f"Err on duration retry: {e}")
     if not os.path.exists(output_file):
         return await q_msg.edit_text("❌ Conversion failed. No output file.")

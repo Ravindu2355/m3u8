@@ -27,6 +27,8 @@ async def remove_parts(bot, message):
         os.makedirs(download_path)
 
     tg_name = await get_tg_filename(message.reply_to_message)
+    if "./downloads/" in tg_name:
+        tg_name = tg_name.replace("./downloads/","")
     video_path = os.path.join(download_path, tg_name)
     output_path = os.path.join(download_path, f"{os.path.splitext(tg_name)[0]}_partrem.mp4")
 

@@ -12,7 +12,7 @@ def time_to_seconds(time_str):
     h, m, s = map(float, time_str.split(":"))
     return h*3600 + m*60 + s
 
-@Client.on_message(filters.command("remove") & filters.reply & filters.video)
+@Client.on_message(filters.command("remove") & filters.reply)
 async def remove_parts(bot, message):
     try:
         time_arg = message.text.split(" ", 1)[1]
@@ -26,13 +26,13 @@ async def remove_parts(bot, message):
     if not os.path.exists(download_path):
         os.makedirs(download_path)
 
-    tg_name = await get_tg_filename(message)
+    tg_name = await get_tg_filename(message.reply_to_message)
     video_path = os.path.join(download_path, tg_name)
     output_path = os.path.join(download_path, f"{os.path.splitext(tg_name)[0]}_partrem.mp4")
 
     # Download with progress
     start_time = time.time()
-    await message.video.download(
+    await message.reply_to_message.video.download(
         file_name=video_path,
         progress=progress_callback,
         progress_args=(msg, "Downloading...", start_time, last_update)

@@ -32,7 +32,7 @@ async def remove_parts(bot, message):
 
     # Download with progress
     start_time = time.time()
-    await message.reply_to_message.video.download(
+    await message.reply_to_message.download(
         file_name=video_path,
         progress=progress_callback,
         progress_args=(msg, "Downloading...", start_time, last_update)

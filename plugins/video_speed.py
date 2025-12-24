@@ -19,7 +19,7 @@ async def speed_video(bot, message):
     output_path = os.path.join(download_path, f"{os.path.splitext(tg_name)[0]}_spd.mp4")
 
     # Download with progress
-    await message.reply_to_message.video.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
+    await message.reply_to_message.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
 
     # Apply speed
     subprocess.run([

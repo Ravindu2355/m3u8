@@ -25,7 +25,7 @@ async def mute_parts(bot, message):
     output_path = os.path.join(download_path, f"{os.path.splitext(tg_name)[0]}_muted.mp4")
 
     # Download with progress
-    await message.reply_to_message.video.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
+    await message.reply_to_message.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
 
     # Build ffmpeg filter
     filters = ",".join([f"volume=enable='between(t,{time_to_seconds(p.split('-')[0])},{time_to_seconds(p.split('-')[1])})':volume=0" for p in parts])

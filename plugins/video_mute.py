@@ -10,7 +10,7 @@ def time_to_seconds(time_str):
     h, m, s = map(float, time_str.split(":"))
     return h*3600 + m*60 + s
 
-@Client.on_message(filters.command("mutep") & filters.reply & filters.video)
+@Client.on_message(filters.command("mutep") & filters.reply)
 async def mute_parts(bot, message):
     try:
         time_arg = message.text.split(" ", 1)[1]
@@ -20,12 +20,12 @@ async def mute_parts(bot, message):
     parts = time_arg.split("|")
     msg = await message.reply_text("⏳ Muting video parts...")
 
-    tg_name = await get_tg_filename(message)
+    tg_name = await get_tg_filename(message.reply_to_message)
     video_path = os.path.join(download_path, tg_name)
     output_path = os.path.join(download_path, f"{os.path.splitext(tg_name)[0]}_muted.mp4")
 
     # Download with progress
-    await message.video.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
+    await message.reply_to_message.video.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
 
     # Build ffmpeg filter
     filters = ",".join([f"volume=enable='between(t,{time_to_seconds(p.split('-')[0])},{time_to_seconds(p.split('-')[1])})':volume=0" for p in parts])

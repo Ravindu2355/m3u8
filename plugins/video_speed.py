@@ -6,7 +6,7 @@ from plugins.converter import progress_callback
 
 download_path = "./downloads"
 
-@Client.on_message(filters.command("spd") & filters.reply & filters.video)
+@Client.on_message(filters.command("spd") & filters.reply)
 async def speed_video(bot, message):
     try:
         speed = float(message.text.split(" ",1)[1])
@@ -14,12 +14,12 @@ async def speed_video(bot, message):
         return await message.reply_text("Usage: /spd <speed factor, e.g., 1.2>")
 
     msg = await message.reply_text("⏳ Processing speed...")
-    tg_name = await get_tg_filename(message)
+    tg_name = await get_tg_filename(message.reply_to_message)
     video_path = os.path.join(download_path, tg_name)
     output_path = os.path.join(download_path, f"{os.path.splitext(tg_name)[0]}_spd.mp4")
 
     # Download with progress
-    await message.video.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
+    await message.reply_to_message.video.download(file_name=video_path, progress=progress_callback, progress_args=(msg,"Downloading...",0,{"time":0,"msg":""}))
 
     # Apply speed
     subprocess.run([

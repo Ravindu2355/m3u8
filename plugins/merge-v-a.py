@@ -76,3 +76,48 @@ async def save_audio_and_merge(bot, message):
         pass
 
     user_data.pop(user_id, None)
+
+@Client.on_message(filters.command("mergevaurl"))
+async def merge_va_url(bot, message):
+    user_id = message.from_user.id
+
+    if len(message.command) < 3:
+        return await message.reply_text(
+            "❌ Usage:\n/mergevaurl <video_url> <audio_url>"
+        )
+
+    video_url = message.command[1]
+    audio_url = message.command[2]
+
+    msg = await message.reply_text("⏳ Processing URLs...")
+
+    output_path = os.path.join(download_path, f"{user_id}_url_merged.mp4")
+
+    await msg.edit_text("⚡ Downloading & merging streams...")
+
+    try:
+        subprocess.run([
+            "ffmpeg",
+            "-loglevel", "error",
+            "-i", video_url,
+            "-i", audio_url,
+            "-map", "0:v:0",
+            "-map", "1:a:0",
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-shortest",
+            output_path
+        ], check=True)
+
+    except subprocess.CalledProcessError:
+        return await msg.edit_text("❌ Failed to merge URLs (invalid or protected streams)")
+
+    # Upload
+    await msg.edit_text("⏳ Uploading merged video...")
+    await upload_and_start_new_file(bot, msg, output_path, 0)
+
+    # Cleanup
+    try:
+        os.remove(output_path)
+    except:
+        pass

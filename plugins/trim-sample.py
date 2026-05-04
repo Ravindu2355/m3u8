@@ -37,7 +37,7 @@ async def trim_fast(bot, message):
 
     msg = await message.reply_text("⏳ Downloading video...")
 
-    input_path = os.path.join(download_path, f"{user_id}_input.mp4")
+    input_path = os.path.abspath(os.path.join(download_path, f"{user_id}_input.mp4"))
 
     await message.reply_to_message.download(
         file_name=input_path,
@@ -49,7 +49,7 @@ async def trim_fast(bot, message):
     await msg.edit_text("✂️ Trimming (fast mode)...")
 
     for i, (start, end) in enumerate(ranges):
-        out_clip = os.path.join(download_path, f"{user_id}_clip_{i}.ts")
+        out_clip = os.path.abspath(os.path.join(download_path, f"{user_id}_clip_{i}.ts"))
 
         subprocess.run([
             "ffmpeg",
@@ -61,16 +61,17 @@ async def trim_fast(bot, message):
             "-avoid_negative_ts", "1",
             "-f", "mpegts",
             out_clip
-        ])
+        ], check=True)
 
         clips.append(out_clip)
 
-    concat_file = os.path.join(download_path, f"{user_id}_concat.txt")
+    concat_file = os.path.abspath(os.path.join(download_path, f"{user_id}_concat.txt"))
+
     with open(concat_file, "w") as f:
         for clip in clips:
-            f.write(f"file '{clip}'\n")
+            f.write(f"file '{clip}'\n")   # ✅ absolute paths fix
 
-    output_path = os.path.join(download_path, f"{user_id}_final.mp4")
+    output_path = os.path.abspath(os.path.join(download_path, f"{user_id}_final.mp4"))
 
     await msg.edit_text("🔗 Merging clips...")
 
@@ -79,24 +80,22 @@ async def trim_fast(bot, message):
         "-y",
         "-f", "concat",
         "-safe", "0",
+        "-fflags", "+genpts",
         "-i", concat_file,
         "-c", "copy",
         "-bsf:a", "aac_adtstoasc",
         output_path
-    ])
+    ], check=True)
 
     await msg.edit_text("⏳ Uploading...")
     await upload_and_start_new_file(bot, msg, output_path, 0)
 
     # Cleanup
-    try:
-        os.remove(input_path)
-        os.remove(concat_file)
-        os.remove(output_path)
-        for c in clips:
-            os.remove(c)
-    except:
-        pass
+    for f in [input_path, concat_file, output_path] + clips:
+        try:
+            os.remove(f)
+        except:
+            pass
 
     await msg.delete()
 
@@ -119,7 +118,7 @@ async def trim_hq(bot, message):
 
     msg = await message.reply_text("⏳ Downloading video...")
 
-    input_path = os.path.join(download_path, f"{user_id}_input.mp4")
+    input_path = os.path.abspath(os.path.join(download_path, f"{user_id}_input.mp4"))
 
     await message.reply_to_message.download(
         file_name=input_path,
@@ -131,7 +130,7 @@ async def trim_hq(bot, message):
     await msg.edit_text("🎬 Trimming (HQ mode)...")
 
     for i, (start, end) in enumerate(ranges):
-        out_clip = os.path.join(download_path, f"{user_id}_clip_{i}.mp4")
+        out_clip = os.path.abspath(os.path.join(download_path, f"{user_id}_clip_{i}.mp4"))
 
         subprocess.run([
             "ffmpeg",
@@ -143,16 +142,17 @@ async def trim_hq(bot, message):
             "-c:a", "aac",
             "-preset", "ultrafast",
             out_clip
-        ])
+        ], check=True)
 
         clips.append(out_clip)
 
-    concat_file = os.path.join(download_path, f"{user_id}_concat.txt")
+    concat_file = os.path.abspath(os.path.join(download_path, f"{user_id}_concat.txt"))
+
     with open(concat_file, "w") as f:
         for clip in clips:
-            f.write(f"file '{clip}'\n")
+            f.write(f"file '{clip}'\n")   # ✅ absolute paths
 
-    output_path = os.path.join(download_path, f"{user_id}_final.mp4")
+    output_path = os.path.abspath(os.path.join(download_path, f"{user_id}_final.mp4"))
 
     await msg.edit_text("🔗 Merging HQ clips...")
 
@@ -161,22 +161,20 @@ async def trim_hq(bot, message):
         "-y",
         "-f", "concat",
         "-safe", "0",
+        "-fflags", "+genpts",
         "-i", concat_file,
         "-c", "copy",
         output_path
-    ])
+    ], check=True)
 
     await msg.edit_text("⏳ Uploading...")
     await upload_and_start_new_file(bot, msg, output_path, 0)
 
     # Cleanup
-    try:
-        os.remove(input_path)
-        os.remove(concat_file)
-        os.remove(output_path)
-        for c in clips:
-            os.remove(c)
-    except:
-        pass
+    for f in [input_path, concat_file, output_path] + clips:
+        try:
+            os.remove(f)
+        except:
+            pass
 
     await msg.delete()

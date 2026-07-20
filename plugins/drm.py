@@ -221,6 +221,11 @@ async def drm_download(bot, message):
                 "Audio download failed"
             )
 
+        try:
+           kid, clear_key = key.split(":", 1)
+        except ValueError:
+           raise Exception ("Invalid key format. Expected KID:KEY")
+
         # ─────────────────────────
         # DECRYPT VIDEO WITH SHAKA PACKAGER
         # ─────────────────────────
@@ -235,8 +240,8 @@ async def drm_download(bot, message):
             "--enable_raw_key_decryption",
 
             "--keys",
-            f"label=:key_id={key.split(':')[0]}:"
-            f"key={key.split(':')[1]}"
+            f"label=:key_id={kid}:"
+            f"key={clear_key}"
         ]
 
         code = await run_command(
@@ -264,8 +269,8 @@ async def drm_download(bot, message):
             "--enable_raw_key_decryption",
 
             "--keys",
-            f"label=:key_id={key.split(':')[0]}:"
-            f"key={key.split(':')[1]}"
+            f"label=:key_id={kid}:"
+            f"key={clear_key}"
         ]
 
         code = await run_command(

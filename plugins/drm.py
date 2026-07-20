@@ -62,17 +62,18 @@ async def drm_download(bot, message):
             "⚠️ You already have an active job."
         )
 
-    if len(message.command) < 3:
+    if len(message.command) < 4:
         return await message.reply_text(
             "Usage:\n"
-            "/dr <authorized_mpd_url> <referer> [filename]"
+            "/dr <authorized_mpd_url> <referer> <clearkey> [filename]"
         )
 
     mpd_url = message.command[1]
     referer = message.command[2]
+    key = message.command[3]
 
     filename = (
-        message.command[3]
+        message.command[4]
         if len(message.command) >= 4
         else f"{user_id}_final.mp4"
     )

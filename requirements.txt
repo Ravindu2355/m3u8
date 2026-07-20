@@ -17,3 +17,5 @@ tqdm==4.62.3
 ffmpeg-python
 imageio
 lottie
+yt-dlp
+mp4decrypt

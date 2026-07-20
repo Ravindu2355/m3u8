@@ -63,6 +63,10 @@ RUN python -m pip install --no-cache-dir \
     setuptools \
     wheel
 
+# pkg_resources compatibility
+RUN pip install --no-cache-dir \
+    "setuptools<81"
+
 RUN python -m pip install --no-cache-dir yt-dlp
 
 

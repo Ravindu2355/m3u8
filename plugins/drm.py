@@ -1,4 +1,4 @@
-import os
+import os,time
 import asyncio
 from pyrogram import Client, filters
 
@@ -10,7 +10,7 @@ os.makedirs(DOWNLOAD_PATH, exist_ok=True)
 active_jobs = set()
 
 
-async def run_command(cmd, msg, title):
+async def old_run_command(cmd, msg, title):
 
     process = await asyncio.create_subprocess_exec(
         *cmd,
@@ -40,6 +40,58 @@ async def run_command(cmd, msg, title):
                 await msg.edit_text(
                     f"⚙️ **{title}**\n\n"
                     f"`{line[:500]}`"
+                )
+
+                last_update = now
+
+            except Exception:
+                pass
+
+    return await process.wait()
+
+
+async def run_command(cmd, msg, title):
+
+    process = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT
+    )
+
+    last_update = 0
+    lines = []
+
+    while True:
+
+        line = await process.stdout.readline()
+
+        if not line:
+            break
+
+        line = line.decode(errors="ignore").strip()
+
+        if not line:
+            continue
+
+        lines.append(line)
+
+        # Keep only the latest 5 lines
+        lines = lines[-5:]
+
+        now = time.monotonic()
+
+        if now - last_update >= 5:
+
+            try:
+
+                output = "\n".join(
+                    f"`{x[:200]}`"
+                    for x in lines
+                )
+
+                await msg.edit_text(
+                    f"⚙️ **{title}**\n\n"
+                    f"{output}"
                 )
 
                 last_update = now

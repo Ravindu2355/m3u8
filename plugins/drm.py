@@ -4,6 +4,7 @@ import asyncio
 from html import escape
 
 from pyrogram import Client, filters
+from pyrogram.enums import ParseMode
 from plugins.live_rec2 import upload_and_start_new_file
 
 DOWNLOAD_PATH = "./downloads"
@@ -41,7 +42,7 @@ async def run_command(cmd, msg, title):
                 await msg.edit_text(
                     f"⚙️ <b>{escape(title)}</b>\n\n"
                     f"<code>{escape(latest_line[:500])}</code>",
-                    parse_mode="html"
+                    parse_mode=ParseMode.HTML
                 )
                 last_update = now
             except Exception as e:
@@ -51,7 +52,7 @@ async def run_command(cmd, msg, title):
         await msg.edit_text(
             f"⚙️ <b>{escape(title)}</b>\n\n"
             f"<code>{escape(latest_line[:500])}</code>",
-            parse_mode="html"
+            parse_mode=ParseMode.HTML
         )
     except Exception as e:
         print("Final status update error:", e)
@@ -105,7 +106,7 @@ async def drm_download(bot, message):
 
     msg = await message.reply_text(
         "🚀 <b>Starting...</b>",
-        parse_mode="html"
+        parse_mode=ParseMode.HTML
     )
 
     folder = os.path.join(DOWNLOAD_PATH, str(user_id))
@@ -252,7 +253,7 @@ async def drm_download(bot, message):
 
         await msg.edit_text(
             "🎬 <b>Merging video + audio...</b>",
-            parse_mode="html"
+            parse_mode=ParseMode.HTML
         )
 
         merge_cmd = [
@@ -283,7 +284,7 @@ async def drm_download(bot, message):
 
         await msg.edit_text(
             "📤 <b>Uploading final file...</b>",
-            parse_mode="html"
+            parse_mode=ParseMode.HTML
         )
 
         await upload_and_start_new_file(
@@ -300,7 +301,7 @@ async def drm_download(bot, message):
             await msg.edit_text(
                 f"❌ <b>Failed</b>\n\n"
                 f"<code>{escape(str(e)[:1000])}</code>",
-                parse_mode="html"
+                parse_mode=ParseMode.HTML
             )
         except Exception:
             pass

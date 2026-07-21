@@ -41,7 +41,7 @@ async def run_command(cmd, msg, title):
             try:
                 await msg.edit_text(
                     f"⚙️ <b>{escape(title)}</b>\n\n"
-                    f"<code>{escape(latest_line[:500])}</code>",
+                    f"<code>{escape(latest_line[:400])}</code>\n\nTime: {now}",
                     parse_mode=ParseMode.HTML
                 )
                 last_update = now
@@ -50,8 +50,8 @@ async def run_command(cmd, msg, title):
 
     try:
         await msg.edit_text(
-            f"⚙️ <b>{escape(title)}</b>\n\n"
-            f"<code>{escape(latest_line[:500])}</code>",
+            f"FinalStep:\n\n⚙️ <b>{escape(title)}</b>\n\n"
+            f"<code>{escape(latest_line[:400])}</code>\n\nTime: {now}",
             parse_mode=ParseMode.HTML
         )
     except Exception as e:

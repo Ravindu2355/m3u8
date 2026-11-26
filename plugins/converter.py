@@ -5,7 +5,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from Func.simples import mention_user, generate_thumbnail, get_tg_filename, get_media_duration
 from Func.m3u8 import download_and_convert_video
 #from plugins.subtitles import subtitle_handler
-
+from globals import getThumb
 # A global dictionary to store messages for handling callbacks
 DOWNLOAD_TASKS = {}
 
@@ -175,8 +175,12 @@ async def handle_button_click_convert(client, query: CallbackQuery):
                     return
 
                 # Generate thumbnail
-                await q_msg.edit_text("🖼 **Generating new thumbnail...**")
-                generate_thumbnail(output_file, thumb_file)
+                custom_thumb = getThumb()
+                if custom_thumb:
+                    thumb_file = custom_thumb
+                else:
+                    await q_msg.edit_text("🖼 **Generating new thumbnail...**")
+                    generate_thumbnail(output_file, thumb_file)
 
                 if not os.path.exists(thumb_file):
                     await q_msg.edit_text("❌ Failed to gebarate thumb")

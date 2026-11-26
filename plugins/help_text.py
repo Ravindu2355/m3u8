@@ -1,4 +1,4 @@
-from pyrogram import Client, filters
+from pyrogram import Client, filters, types
 from pyrogram.types import Message
 from config import Config
 from globals import AuthU, setThumb, getThumb, deleteThumb

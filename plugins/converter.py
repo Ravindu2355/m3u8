@@ -203,7 +203,8 @@ async def handle_button_click_convert(client, query: CallbackQuery):
                          #await message.reply("✅ **Upload complete!**")
                 await q_msg.delete();
                 os.remove(output_file)
-                os.remove(thumb_file)
+                if not custom_thumb:
+                    os.remove(thumb_file)
                 os.remove(downloaded_file_path)
             except Exception as e:
                 await q_msg.edit_text(f"❌ **Error:** {str(e)}")
